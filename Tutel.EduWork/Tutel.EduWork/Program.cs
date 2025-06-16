@@ -5,6 +5,7 @@ using Tutel.EduWork.Client.Pages;
 using Tutel.EduWork.Components;
 using Tutel.EduWork.Components.Account;
 using Tutel.EduWork.Data;
+using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork
 {
