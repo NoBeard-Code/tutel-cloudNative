@@ -5,13 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tutel.EduWork.DataAccessLayer.Abstractions;
 
 namespace Tutel.EduWork.DataAccessLayer.Entities
 {
-    public class Vacation
+    public class Vacation : BaseEntity, IUserRelated
     {
-        [Key]
-        public int Id { get; set; }
         [Required]
         public DateOnly StartDate { get; set; }
         [Required]

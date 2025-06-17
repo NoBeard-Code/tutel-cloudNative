@@ -5,18 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tutel.EduWork.DataAccessLayer.Abstractions;
+using Tutel.EduWork.DataAccessLayer.Entities;
 
-namespace Tutel.EduWork.DataAccessLayer.Entities
+namespace Tutel.EduWork.DataAccessLayer.Abstractions
 {
-    public class SickLeave : BaseEntity, IUserRelated
+    public interface IUserRelated
     {
-        [Required]
-        public DateOnly StartDate { get; set; }
-        [Required]
-        public DateOnly EndDate { get; set; }
-        [Required]
-        public string Reason { get; set; }
         [Required]
         public string UserId { get; set; }
         [ForeignKey(nameof(UserId))]

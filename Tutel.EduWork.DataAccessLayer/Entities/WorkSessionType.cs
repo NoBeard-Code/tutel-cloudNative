@@ -5,13 +5,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tutel.EduWork.DataAccessLayer.Abstractions;
 
 namespace Tutel.EduWork.DataAccessLayer.Entities
 {
-    public class WorkSessionType
+    public class WorkSessionType : BaseEntity
     {
-        [Key]
-        public int Id { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]

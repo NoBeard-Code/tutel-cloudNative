@@ -6,11 +6,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tutel.EduWork.DataAccessLayer.Abstractions;
 
 namespace Tutel.EduWork.DataAccessLayer.Entities
 {
     [PrimaryKey(nameof(UserId), nameof(ProjectId))]
-    public class UserProject
+    public class UserProject : IUserRelated
     {
         public string UserId { get; set; }
         public int ProjectId { get; set; }
