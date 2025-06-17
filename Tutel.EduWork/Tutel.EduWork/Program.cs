@@ -5,6 +5,7 @@ using Tutel.EduWork.Client.Pages;
 using Tutel.EduWork.Components;
 using Tutel.EduWork.Components.Account;
 using Tutel.EduWork.Data;
+using Tutel.EduWork.DataAccessLayer;
 using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork
@@ -45,6 +46,12 @@ namespace Tutel.EduWork
 
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+            #region SEED
+
+            builder.Services.AddTransient<DataSeeder>();
+
+            #endregion
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -72,6 +79,14 @@ namespace Tutel.EduWork
 
             // Add additional endpoints required by the Identity /Account Razor components.
             app.MapAdditionalIdentityEndpoints();
+
+            #region SEED
+
+            using var scope = app.Services.CreateScope();
+            var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+            seeder.Seed();
+
+            #endregion
 
             app.Run();
         }
