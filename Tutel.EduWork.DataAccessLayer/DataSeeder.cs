@@ -11,8 +11,8 @@ namespace Tutel.EduWork.DataAccessLayer
         {
             _context = context;
         }
-
-        public void Seed()
+        
+        public void Cleanup()
         {
             _context.WorkSessions.RemoveRange(_context.WorkSessions);
             _context.WorkDays.RemoveRange(_context.WorkDays);
@@ -25,6 +25,12 @@ namespace Tutel.EduWork.DataAccessLayer
             _context.Users.RemoveRange(_context.Users);
 
             _context.SaveChanges();
+        }
+
+        public void Seed()
+        {
+            
+            Cleanup();
 
             var user1 = new Entities.ApplicationUser
             {
@@ -122,6 +128,8 @@ namespace Tutel.EduWork.DataAccessLayer
             });
 
             _context.SaveChanges();
+
+            _context.Dispose();
         }
     }
 }
