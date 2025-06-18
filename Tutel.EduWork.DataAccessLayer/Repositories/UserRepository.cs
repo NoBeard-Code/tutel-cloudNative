@@ -1,13 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tutel.EduWork.BusinessLayer.Interfaces;
+﻿using System.Data;
 using Tutel.EduWork.Data;
-using Tutel.EduWork.DataAccessLayer.Abstractions;
+using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
 using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
@@ -41,6 +34,7 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 
         public ApplicationUser? GetByEmail(string email)
         {
+            // return Entities.FirstOrDefault(e => e.Email == email);
             var query = from u in Entities where email == u.Email select u;
             return query.FirstOrDefault();
         }

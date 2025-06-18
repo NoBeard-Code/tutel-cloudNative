@@ -1,12 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tutel.EduWork.Data;
 
-namespace Tutel.EduWork.DataAccessLayer.Abstractions
+namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
 {
     public abstract class Repository<T> : IDisposable where T : class
     {
@@ -26,8 +21,7 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions
 
         public IQueryable<T> GetAll()
         {
-            var query = from e in Entities select e;
-            return query;
+            return Entities.AsQueryable();
         }
 
         public void Add(T entity)

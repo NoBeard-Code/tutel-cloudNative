@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tutel.EduWork.DataAccessLayer.Entities;
+﻿using Tutel.EduWork.DataAccessLayer.Entities;
 
-namespace Tutel.EduWork.BusinessLayer.Interfaces
+namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
 {
     public interface IVacationRepository
     {
         public Vacation GetById(int id);
-        public Vacation GetAllUserVacations(string userId);
+        public List<Vacation> GetAllUserVacations(string userId);
         public Vacation GetByStartDate(DateOnly startDate);
         public Vacation GetByEndDate(DateOnly endDate);
         public List<Vacation> GetByTeambuilding(bool teambuilding);
