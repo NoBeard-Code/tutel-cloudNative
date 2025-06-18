@@ -11,7 +11,7 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
     {
         public List<ApplicationUser> GetAllUsers()
         {
-            return GetAll().ToList();
+            return [.. GetAll()];
         }
 
         public void AddUser(ApplicationUser user)
@@ -41,14 +41,12 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 
         public ApplicationUser? GetByEmail(string email)
         {
-            var query = from u in Entities where email == u.Email select u;
-            return query.FirstOrDefault();
+            return Entities.FirstOrDefault(u => u.Email == email);
         }
 
         public ApplicationUser? GetById(string id)
         {
-            var query = from u in Entities where id == u.Id select u;
-            return query.FirstOrDefault();
+            return Entities.FirstOrDefault(u => u.Id == id);
         }
 
         public string? GetRole(string userId)
@@ -64,14 +62,12 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 
         public ApplicationUser? GetBySurname(string surname)
         {
-            var query = from u in Entities where surname == u.Surname select u;
-            return query.FirstOrDefault();
+            return Entities.FirstOrDefault(u => u.Surname == surname);
         }
 
         public ApplicationUser? GetByUserName(string userName)
         {
-            var query = from u in Entities where userName == u.Name select u;
-            return query.FirstOrDefault();
+            return Entities.FirstOrDefault(u => u.Name == userName);
         }
     }
 }

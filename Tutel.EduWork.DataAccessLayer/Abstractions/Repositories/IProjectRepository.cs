@@ -2,7 +2,7 @@
 
 namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
 {
-    public interface IProjectRepository
+    public interface IProjectRepository : IRepository<Project>
     {
         public Project GetById(int id);
         public List<Project> GetAllUserProjects(string idUser);

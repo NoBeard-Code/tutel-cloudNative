@@ -2,7 +2,7 @@
 
 namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
 {
-    public interface IWorkSessionRepository
+    public interface IWorkSessionRepository : IRepository<WorkSession>
     {
         public WorkSession GetById(int id);
         public List<WorkSession> GetAllUserSessions(string userId);

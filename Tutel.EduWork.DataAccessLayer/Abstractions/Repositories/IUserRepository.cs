@@ -2,13 +2,13 @@
 
 namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
 {
-    public interface IUserRepository
+    public interface IUserRepository : IRepository<ApplicationUser>
     {
-        public ApplicationUser GetById(string id);
-        public ApplicationUser GetByUserName(string userName);
-        public ApplicationUser GetByEmail(string email);
-        public ApplicationUser GetBySurname(string surname);
-        public string GetRole(string userId);
-        public List<ApplicationUser> GetAllByRole(string role);
+        ApplicationUser GetById(string id);
+        ApplicationUser GetByUserName(string userName);
+        ApplicationUser GetByEmail(string email);
+        ApplicationUser GetBySurname(string surname);
+        string GetRole(string userId);
+        List<ApplicationUser> GetAllByRole(string role);
     }
 }

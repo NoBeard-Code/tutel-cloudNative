@@ -28,8 +28,7 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 
         public List<SickLeave> GetAllUserSickLeaves(string userId)
         {
-            return Entities.Where(s => s.UserId == userId)
-                .OrderBy(s => s.StartDate).ToList();
+            return [.. Entities.Where(s => s.UserId == userId).OrderBy(s => s.StartDate)];
         }
 
         public SickLeave? GetByEndDate(DateOnly endDate)

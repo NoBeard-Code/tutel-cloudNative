@@ -2,7 +2,7 @@
 
 namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
 {
-    public interface ISickLeaveRepository
+    public interface ISickLeaveRepository : IRepository<SickLeave>
     {
         public SickLeave GetById(int id);
         public List<SickLeave> GetAllUserSickLeaves(string userId);

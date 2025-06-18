@@ -29,19 +29,17 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 
         public List<Project> GetAllUserProjects(string idUser)
         {
-            return Entities.Include(p => p.UserProjects)
-                .Where(p => p.UserProjects.Any(up => up.UserId == idUser))
-                .ToList();
+            return [.. Entities.Include(p => p.UserProjects).Where(p => p.UserProjects.Any(up => up.UserId == idUser))];
         }
 
         public List<Project> GetByActive(bool active)
         {
-            return Entities.Where(p => p.IsActive == active).ToList();
+            return [.. Entities.Where(p => p.IsActive == active)];
         }
 
         public List<Project> GetByBillable(bool billable)
         {
-            return Entities.Where(p => p.IsBillable == billable).ToList();
+            return [.. Entities.Where(p => p.IsBillable == billable)];
         }
 
         public Project? GetById(int id)

@@ -28,14 +28,12 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 
         public List<WorkDay> GetAllUserWorkDays(string userId)
         {
-            return Entities.Where(w => w.UserId == userId).OrderBy(w => w.WorkDate).ToList();
+            return [.. Entities.Where(w => w.UserId == userId).OrderBy(w => w.WorkDate)];
         }
 
         public List<WorkDay> GetAllUserWorkDaysStart(int userId, TimeOnly startTime)
         {
-            return Entities
-                .Where(w => w.UserId == userId.ToString() && w.WorkDayStart >= startTime)
-                .ToList();
+            return [.. Entities.Where(w => w.UserId == userId.ToString() && w.WorkDayStart >= startTime)];
         }
 
         public WorkDay? GetById(int id)

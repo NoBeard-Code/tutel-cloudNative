@@ -2,7 +2,7 @@
 
 namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
 {
-    public interface IWorkDayRepository
+    public interface IWorkDayRepository : IRepository<WorkDay>
     {
         public WorkDay GetById(int id);
         public List<WorkDay> GetAllUserWorkDays(string userId);

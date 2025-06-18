@@ -29,48 +29,40 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 
         public List<WorkSession> GetAllSessionsByDate(DateOnly workDate)
         {
-            return Entities.Include(w => w.WorkDay)
-                .Where(w => w.WorkDay.WorkDate == workDate)
-                .ToList();
+            return [.. Entities.Include(w => w.WorkDay).Where(w => w.WorkDay.WorkDate == workDate)];
         }
 
         public List<WorkSession> GetAllUserSessions(string userId)
         {
-            return Entities.Include(w => w.WorkDay)
-                .Where(w => w.WorkDay.UserId == userId)
-                .ToList();
+            return [.. Entities.Include(w => w.WorkDay).Where(w => w.WorkDay.UserId == userId)];
         }
 
         public List<WorkSession> GetAllUserSessionsByDate(string userId, DateOnly workDate)
         {
-            return Entities
+            return [.. Entities
                 .Include(w => w.WorkDay)
-                .Where(w => w.WorkDay.UserId == userId && w.WorkDay.WorkDate == workDate)
-                .ToList();
+                .Where(w => w.WorkDay.UserId == userId && w.WorkDay.WorkDate == workDate)];
         }
 
         public List<WorkSession> GetAllUserSessionsByOvertime(string userId, bool overtime)
         {
-            return Entities
+            return [.. Entities
                 .Include(w => w.WorkDay)
-                .Where(w => w.WorkDay.UserId == userId && w.IsOvertime == overtime)
-                .ToList();
+                .Where(w => w.WorkDay.UserId == userId && w.IsOvertime == overtime)];
         }
 
         public List<WorkSession> GetAllUserSessionsByProject(string userId, int projectId)
         {
-            return Entities
+            return [.. Entities
                 .Include(w => w.WorkDay)
-                .Where(w => w.WorkDay.UserId == userId && w.ProjectId == projectId)
-                .ToList();
+                .Where(w => w.WorkDay.UserId == userId && w.ProjectId == projectId)];
         }
 
         public List<WorkSession> GetAllUserSessionsByType(string userId, int typeId)
         {
-            return Entities
+            return [.. Entities
                 .Include(w => w.WorkDay)
-                .Where(w => w.WorkDay.UserId == userId && w.TypeId == typeId)
-                .ToList();
+                .Where(w => w.WorkDay.UserId == userId && w.TypeId == typeId)];
         }
 
         public WorkSession? GetById(int id)

@@ -28,13 +28,12 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 
         public List<Vacation> GetAllUserVacations(string userId)
         {
-            return Entities.Where(v => v.UserId == userId)
-                .OrderBy(v => v.StartDate).ToList();
+            return [.. Entities.Where(v => v.UserId == userId).OrderBy(v => v.StartDate)];
         }
 
         public List<Vacation> GetByEndDate(DateOnly endDate)
         {
-            return Entities.Where(v => v.EndDate == endDate).ToList();
+            return [.. Entities.Where(v => v.EndDate == endDate)];
         }
 
         public Vacation? GetById(int id)
@@ -44,12 +43,12 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 
         public List<Vacation> GetByStartDate(DateOnly startDate)
         {
-            return Entities.Where(v => v.StartDate == startDate).ToList();
+            return [.. Entities.Where(v => v.StartDate == startDate)];
         }
 
         public List<Vacation> GetByTeambuilding(bool teambuilding)
         {
-            return Entities.Where(v => v.IsTeamBuilding == teambuilding).ToList();
+            return [.. Entities.Where(v => v.IsTeamBuilding == teambuilding)];
         }
     }
 }
