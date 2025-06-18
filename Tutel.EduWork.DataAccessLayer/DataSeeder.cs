@@ -14,6 +14,18 @@ namespace Tutel.EduWork.DataAccessLayer
 
         public void Seed()
         {
+            _context.WorkSessions.RemoveRange(_context.WorkSessions);
+            _context.WorkDays.RemoveRange(_context.WorkDays);
+            _context.UserProjects.RemoveRange(_context.UserProjects);
+            _context.Vacations.RemoveRange(_context.Vacations);
+            _context.SickLeaves.RemoveRange(_context.SickLeaves);
+
+            _context.Projects.RemoveRange(_context.Projects);
+            _context.WorkSessionTypes.RemoveRange(_context.WorkSessionTypes);
+            _context.Users.RemoveRange(_context.Users);
+
+            _context.SaveChanges();
+
             var user1 = new Entities.ApplicationUser
             {
                 Id = "b1e207f2-9c36-41fd-b587-df7d4e0b4d2f",
