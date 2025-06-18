@@ -6,8 +6,8 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
     {
         public Vacation GetById(int id);
         public List<Vacation> GetAllUserVacations(string userId);
-        public Vacation GetByStartDate(DateOnly startDate);
-        public Vacation GetByEndDate(DateOnly endDate);
+        public List<Vacation> GetByStartDate(DateOnly startDate);
+        public List<Vacation> GetByEndDate(DateOnly endDate);
         public List<Vacation> GetByTeambuilding(bool teambuilding);
     }
 }

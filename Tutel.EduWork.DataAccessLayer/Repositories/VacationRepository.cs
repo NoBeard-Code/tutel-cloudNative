@@ -32,9 +32,9 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
                 .OrderBy(v => v.StartDate).ToList();
         }
 
-        public Vacation? GetByEndDate(DateOnly endDate)
+        public List<Vacation> GetByEndDate(DateOnly endDate)
         {
-            return Entities.FirstOrDefault(v => v.EndDate == endDate);
+            return Entities.Where(v => v.EndDate == endDate).ToList();
         }
 
         public Vacation? GetById(int id)
@@ -42,9 +42,9 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
             return Entities.FirstOrDefault(v => v.Id == id);
         }
 
-        public Vacation? GetByStartDate(DateOnly startDate)
+        public List<Vacation> GetByStartDate(DateOnly startDate)
         {
-            return Entities.FirstOrDefault(v => v.StartDate == startDate);
+            return Entities.Where(v => v.StartDate == startDate).ToList();
         }
 
         public List<Vacation> GetByTeambuilding(bool teambuilding)
