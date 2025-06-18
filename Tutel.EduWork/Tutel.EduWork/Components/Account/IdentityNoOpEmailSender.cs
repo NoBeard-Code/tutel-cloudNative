@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Tutel.EduWork.Data;
+using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.Components.Account
 {

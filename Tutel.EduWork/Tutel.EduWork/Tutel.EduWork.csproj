@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Tutel.EduWork.DataAccessLayer\Tutel.EduWork.DataAccessLayer.csproj" />
     <ProjectReference Include="..\Tutel.EduWork.Client\Tutel.EduWork.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.6" />
