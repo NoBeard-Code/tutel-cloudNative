@@ -9,7 +9,7 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
     {
         public List<Project> GetAllProjects()
         {
-            return GetAll().ToList();
+            return [.. GetAll()];
         }
 
         public void AddProject(Project project)

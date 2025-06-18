@@ -9,7 +9,7 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
     {
         public List<WorkSession> GetAllWorkSessions()
         {
-            return GetAll().ToList();
+            return [.. GetAll()];
         }
 
         public void AddWorkSession(WorkSession workSession)

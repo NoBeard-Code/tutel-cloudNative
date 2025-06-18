@@ -8,7 +8,7 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
     {
         public List<WorkDay> GetAllWorkDays()
         {
-            return GetAll().ToList();
+            return [.. GetAll()];
         }
 
         public void AddWorkDay(WorkDay workDay)

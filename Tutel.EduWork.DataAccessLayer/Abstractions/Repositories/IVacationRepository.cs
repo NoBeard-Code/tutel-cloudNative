@@ -4,7 +4,7 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
 {
     public interface IVacationRepository : IRepository<Vacation>
     {
-        public Vacation GetById(int id);
+        public Vacation? GetById(int id);
         public List<Vacation> GetAllUserVacations(string userId);
         public List<Vacation> GetByStartDate(DateOnly startDate);
         public List<Vacation> GetByEndDate(DateOnly endDate);

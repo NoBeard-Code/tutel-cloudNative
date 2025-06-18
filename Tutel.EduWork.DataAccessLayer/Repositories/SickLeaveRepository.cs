@@ -31,9 +31,9 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
             return [.. Entities.Where(s => s.UserId == userId).OrderBy(s => s.StartDate)];
         }
 
-        public SickLeave? GetByEndDate(DateOnly endDate)
+        public List<SickLeave> GetByEndDate(DateOnly endDate)
         {
-            return Entities.FirstOrDefault(sl => sl.EndDate == endDate);
+            return [.. Entities.Where(sl => sl.EndDate == endDate)];
         }
 
         public SickLeave? GetById(int id)
@@ -41,9 +41,9 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
             return Entities.FirstOrDefault(sl => sl.Id == id);
         }
 
-        public SickLeave? GetByStartDate(DateOnly startDate)
+        public List<SickLeave> GetByStartDate(DateOnly startDate)
         {
-            return Entities.FirstOrDefault(sl => sl.StartDate == startDate);
+            return [.. Entities.Where(sl => sl.StartDate == startDate)];
         }
     }
 }

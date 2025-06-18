@@ -8,7 +8,7 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
     {
         public List<Vacation> GetAllVacations()
         {
-            return GetAll().ToList();   
+            return [.. GetAll()];   
         }
 
         public void AddVacation(Vacation vacation)

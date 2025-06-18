@@ -43,7 +43,7 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
         {
             return Entities.FirstOrDefault(u => u.Email == email);
         }
-
+            
         public ApplicationUser? GetById(string id)
         {
             return Entities.FirstOrDefault(u => u.Id == id);
