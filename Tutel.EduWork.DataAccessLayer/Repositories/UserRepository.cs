@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 using Tutel.EduWork.Data;
 using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
 using Tutel.EduWork.DataAccessLayer.Entities;
@@ -29,12 +31,16 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 
         public List<ApplicationUser> GetAllByRole(string role)
         {
-            throw new NotImplementedException();
+            var userIds = (from ur in Context.UserRoles
+                           join r in Context.Roles on ur.RoleId equals r.Id
+                           where r.Name == role
+                           select ur.UserId).ToList();
+
+            return [.. Entities.Where(u => userIds.Contains(u.Id))];
         }
 
         public ApplicationUser? GetByEmail(string email)
         {
-            // return Entities.FirstOrDefault(e => e.Email == email);
             var query = from u in Entities where email == u.Email select u;
             return query.FirstOrDefault();
         }
@@ -45,9 +51,15 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
             return query.FirstOrDefault();
         }
 
-        public ApplicationUser GetRole(string userId)
+        public string? GetRole(string userId)
         {
-            throw new NotImplementedException();
+            var roleName = (from user in Entities
+                            join userRole in Context.Set<IdentityUserRole<string>>() on user.Id equals userRole.UserId
+                            join role in Context.Set<IdentityRole>() on userRole.RoleId equals role.Id
+                            where user.Id == userId
+                            select role.Name).FirstOrDefault();
+
+            return roleName;
         }
 
         public ApplicationUser? GetBySurname(string surname)

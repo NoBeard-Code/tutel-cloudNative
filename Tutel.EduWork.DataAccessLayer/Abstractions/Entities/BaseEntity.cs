@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tutel.EduWork.DataAccessLayer.Abstractions
+namespace Tutel.EduWork.DataAccessLayer.Abstractions.Entities
 {
     public abstract class BaseEntity
     {

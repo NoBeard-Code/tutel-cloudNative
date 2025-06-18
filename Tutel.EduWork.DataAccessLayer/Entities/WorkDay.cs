@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tutel.EduWork.DataAccessLayer.Abstractions;
+using Tutel.EduWork.DataAccessLayer.Abstractions.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Entities
 {

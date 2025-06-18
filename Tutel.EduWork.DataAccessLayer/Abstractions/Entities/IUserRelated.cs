@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Tutel.EduWork.DataAccessLayer.Entities;
 
-namespace Tutel.EduWork.DataAccessLayer.Abstractions
+namespace Tutel.EduWork.DataAccessLayer.Abstractions.Entities
 {
     public interface IUserRelated
     {

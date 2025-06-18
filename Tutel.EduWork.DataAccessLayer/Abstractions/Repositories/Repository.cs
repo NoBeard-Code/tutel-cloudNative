@@ -41,7 +41,6 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
             Context.SaveChanges();
         }
 
-
         public void Update(T entity)
         {
             Entities.Attach(entity);

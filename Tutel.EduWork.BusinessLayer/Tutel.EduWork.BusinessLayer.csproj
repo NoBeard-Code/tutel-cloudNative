@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Tutel.EduWork.DataAccessLayer\Tutel.EduWork.DataAccessLayer.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -8,7 +8,7 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
         public ApplicationUser GetByUserName(string userName);
         public ApplicationUser GetByEmail(string email);
         public ApplicationUser GetBySurname(string surname);
-        public ApplicationUser GetRole(string userId);
+        public string GetRole(string userId);
         public List<ApplicationUser> GetAllByRole(string role);
     }
 }
