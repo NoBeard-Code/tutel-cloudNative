@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Tutel.EduWork.Components.Account.Pages;
 using Tutel.EduWork.Components.Account.Pages.Manage;
-using Tutel.EduWork.Data;
+using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Microsoft.AspNetCore.Routing
 {
