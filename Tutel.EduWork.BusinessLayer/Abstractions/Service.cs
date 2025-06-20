@@ -1,37 +1,45 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
 
 namespace Tutel.EduWork.BusinessLayer.Abstractions
 {
-    public abstract class Service<T> : IDisposable where T : class
+    public abstract class Service<TEntity, TDto> : IService<TDto>
+        where TEntity : class
+        where TDto : class
     {
-        protected readonly IRepository<T> repo;
+        protected readonly IRepository<TEntity> repo;
         protected readonly IMapper mapper;
         protected readonly ILogger logger;
 
-        protected Service(IRepository<T> repo, IMapper mapper, ILogger logger)
+        protected Service(IRepository<TEntity> repo, IMapper mapper, ILogger logger)
         {
             this.repo = repo;
             this.mapper = mapper;
             this.logger = logger;
         }
 
-        public async Task<List<T>> GetAllAsync() {
-            return await repo.GetAllAsync();
+        public async Task<List<TDto>> GetAllAsync()
+        {
+            var entities = await repo.GetAllAsync();
+            return mapper.Map<List<TDto>>(entities);
         }
-        public async Task AddAsync(T entity) {
+
+        public async Task AddAsync(TDto dto)
+        {
+            var entity = mapper.Map<TEntity>(dto);
             await repo.AddAsync(entity);
         }
-        public async Task RemoveAsync(T entity)
+
+        public async Task RemoveAsync(TDto dto)
         {
-            await repo.RemoveAsync(entity); 
+            var entity = mapper.Map<TEntity>(dto);
+            await repo.RemoveAsync(entity);
         }
-        public async Task UpdateAsync(T entity)
+
+        public async Task UpdateAsync(TDto dto)
         {
+            var entity = mapper.Map<TEntity>(dto);
             await repo.UpdateAsync(entity);
         }
 
