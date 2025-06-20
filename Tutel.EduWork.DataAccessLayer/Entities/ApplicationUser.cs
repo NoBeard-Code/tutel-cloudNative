@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Tutel.EduWork.DataAccessLayer.Entities
 {
-    // Add profile data for application users by adding properties to the ApplicationUser class
     public class ApplicationUser : IdentityUser
     {
         public string Name { get; set; }

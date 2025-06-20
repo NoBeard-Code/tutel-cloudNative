@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tutel.EduWork.BusinessLayer.Abstractions
+﻿namespace Tutel.EduWork.BusinessLayer.Abstractions
 {
-    public interface IService<T> : IDisposable where T : class
+    public interface IService<TDto> : IDisposable where TDto : class
     {
-        Task<List<T>> GetAllAsync();
-        Task AddAsync(T entity);
-        Task RemoveAsync(T entity);
-        Task UpdateAsync(T entity);
+        Task<List<TDto>> GetAllAsync();
+        Task AddAsync(TDto entity);
+        Task RemoveAsync(TDto entity);
+        Task UpdateAsync(TDto entity);
     }
 }
