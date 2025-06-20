@@ -4,12 +4,12 @@ using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.BusinessLayer.maps
 {
-    internal class UserMap : Profile
+    public class WorkDayMap : Profile
     {
-        public UserMap()
+        public WorkDayMap()
         {
-            CreateMap<UserDTO, ApplicationUser>();
-            CreateMap<ApplicationUser, UserDTO>();
+            CreateMap<WorkDayDTO, WorkDay>();
+            CreateMap<WorkDay, WorkDayDTO>();
         }
     }
 }

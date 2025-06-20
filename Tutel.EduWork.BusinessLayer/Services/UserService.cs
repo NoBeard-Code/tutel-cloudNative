@@ -1,8 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Tutel.EduWork.BusinessLayer.Abstractions;
 using Tutel.EduWork.BusinessLayer.DTOs;
 using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
@@ -10,15 +7,28 @@ using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.BusinessLayer.Services
 {
-    internal class UserService(IUserRepository _userRepo, IMapper _mapper, ILogger<UserService> _logger)
-    : Service<ApplicationUser>(_userRepo, _mapper, _logger), IUserService
+    public class UserService: Service<ApplicationUser, UserDTO>, IUserService
     {
+        private readonly IUserRepository _userRepo;
+        private readonly IMapper _mapper;
+        private readonly ILogger<WorkSessionService> _logger;
+
+        public UserService(
+            IUserRepository userRepo,
+            IMapper mapper,
+            ILogger<WorkSessionService> logger
+        ) : base(userRepo, mapper, logger)
+        {
+            _userRepo = userRepo;
+            _mapper = mapper;
+            _logger = logger;
+        }
 
         public async Task AddUserAsync(UserDTO entity)
         {
             try
             {
-                await AddAsync(_mapper.Map<ApplicationUser>(entity));
+                await AddAsync(entity);
             }
             catch (Exception ex)
             {
@@ -27,11 +37,11 @@ namespace Tutel.EduWork.BusinessLayer.Services
             }
         }
 
-        public async Task<List<UserDTO>> GetAllAsync()
+        public async Task<List<UserDTO>> GetAllUsersAsync()
         {
             try
             {
-                var users = await base.GetAllAsync();
+                var users = await GetAllAsync();
                 return _mapper.Map<List<UserDTO>>(users);
             }
             catch (Exception ex)
@@ -128,7 +138,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
-                await RemoveAsync(_mapper.Map<ApplicationUser>(entity));
+                await _userRepo.RemoveAsync(_mapper.Map<ApplicationUser>(entity));
             }
             catch (Exception ex)
             {
@@ -141,7 +151,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
-                await UpdateAsync(_mapper.Map<ApplicationUser>(entity));
+                await _userRepo.UpdateAsync(_mapper.Map<ApplicationUser>(entity));
             }
             catch (Exception ex)
             {

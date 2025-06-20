@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tutel.EduWork.BusinessLayer.DTOs;
-using Tutel.EduWork.DataAccessLayer.Entities;
+﻿using Tutel.EduWork.BusinessLayer.DTOs;
 
 namespace Tutel.EduWork.BusinessLayer.Abstractions
 {
-    public interface IUserService : IService<ApplicationUser>
+    public interface IUserService : IService<UserDTO>
     {
         Task<UserDTO> GetUserAsync(string id);
         Task<UserDTO?> GetByUserNameAsync(string userName);
