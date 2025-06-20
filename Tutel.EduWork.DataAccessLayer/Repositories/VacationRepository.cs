@@ -4,7 +4,7 @@ using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
-    internal class VacationRepository(ApplicationDbContext context) : Repository<Vacation>(context), IVacationRepository
+    public class VacationRepository(ApplicationDbContext context) : Repository<Vacation>(context), IVacationRepository
     {
         public List<Vacation> GetAllVacations()
         {

@@ -4,7 +4,7 @@ using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
-    internal class SickLeaveRepository(ApplicationDbContext context) : Repository<SickLeave>(context), ISickLeaveRepository
+    public class SickLeaveRepository(ApplicationDbContext context) : Repository<SickLeave>(context), ISickLeaveRepository
     {
         public List<SickLeave> GetAllSickLeaves()
         {

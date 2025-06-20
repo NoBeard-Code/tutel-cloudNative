@@ -4,7 +4,7 @@ using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
-    internal class WorkDayRepository(ApplicationDbContext context) : Repository<WorkDay>(context), IWorkDayRepository
+    public class WorkDayRepository(ApplicationDbContext context) : Repository<WorkDay>(context), IWorkDayRepository
     {
         public List<WorkDay> GetAllWorkDays()
         {

@@ -7,7 +7,7 @@ using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
-    internal class UserRepository(ApplicationDbContext context) : Repository<ApplicationUser>(context), IUserRepository
+    public class UserRepository(ApplicationDbContext context) : Repository<ApplicationUser>(context), IUserRepository
     {
         public List<ApplicationUser> GetAllUsers()
         {
