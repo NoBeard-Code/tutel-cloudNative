@@ -4,9 +4,9 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
 {
     public interface IWorkDayRepository : IRepository<WorkDay>
     {
-        public WorkDay? GetById(int id);
-        public List<WorkDay> GetAllUserWorkDays(string userId);
-        public WorkDay? GetByUserIdWorkDate(int userId, DateOnly workDate);
-        public List<WorkDay> GetAllUserWorkDaysStart(int userId, TimeOnly startTime);
+        Task<WorkDay?> GetByIdAsync(int id);
+        Task<List<WorkDay>> GetAllUserWorkDaysAsync(string userId);
+        Task<WorkDay?> GetByUserIdWorkDateAsync(int userId, DateOnly workDate);
+        Task<List<WorkDay>> GetAllUserWorkDaysStartAsync(int userId, TimeOnly startTime);
     }
 }

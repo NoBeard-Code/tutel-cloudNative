@@ -5,69 +5,81 @@ using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
-    public class WorkSessionRepository(ApplicationDbContext context) : Repository<WorkSession>(context), IWorkSessionRepository
+    public class WorkSessionRepository : Repository<WorkSession>, IWorkSessionRepository
     {
-        public List<WorkSession> GetAllWorkSessions()
+        public WorkSessionRepository(ApplicationDbContext context) : base(context) { }
+
+        public async Task<List<WorkSession>> GetAllWorkSessionsAsync()
         {
-            return [.. GetAll()];
+            return await GetAllAsync();
         }
 
-        public void AddWorkSession(WorkSession workSession)
+        public async Task AddWorkSessionAsync(WorkSession workSession)
         {
-            Add(workSession);
+            await AddAsync(workSession);
         }
 
-        public void RemoveWorkSession(WorkSession workSession)
+        public async Task RemoveWorkSessionAsync(WorkSession workSession)
         {
-            Remove(workSession);
+            await RemoveAsync(workSession);
         }
 
-        public void UpdateWorkSession(WorkSession workSession)
+        public async Task UpdateWorkSessionAsync(WorkSession workSession)
         {
-            Update(workSession);
+            await UpdateAsync(workSession);
         }
 
-        public List<WorkSession> GetAllSessionsByDate(DateOnly workDate)
+        public async Task<List<WorkSession>> GetAllSessionsByDateAsync(DateOnly workDate)
         {
-            return [.. Entities.Include(w => w.WorkDay).Where(w => w.WorkDay.WorkDate == workDate)];
-        }
-
-        public List<WorkSession> GetAllUserSessions(string userId)
-        {
-            return [.. Entities.Include(w => w.WorkDay).Where(w => w.WorkDay.UserId == userId)];
-        }
-
-        public List<WorkSession> GetAllUserSessionsByDate(string userId, DateOnly workDate)
-        {
-            return [.. Entities
+            return await Entities
                 .Include(w => w.WorkDay)
-                .Where(w => w.WorkDay.UserId == userId && w.WorkDay.WorkDate == workDate)];
+                .Where(w => w.WorkDay.WorkDate == workDate)
+                .ToListAsync();
         }
 
-        public List<WorkSession> GetAllUserSessionsByOvertime(string userId, bool overtime)
+        public async Task<List<WorkSession>> GetAllUserSessionsAsync(string userId)
         {
-            return [.. Entities
+            return await Entities
                 .Include(w => w.WorkDay)
-                .Where(w => w.WorkDay.UserId == userId && w.IsOvertime == overtime)];
+                .Where(w => w.WorkDay.UserId == userId)
+                .ToListAsync();
         }
 
-        public List<WorkSession> GetAllUserSessionsByProject(string userId, int projectId)
+        public async Task<List<WorkSession>> GetAllUserSessionsByDateAsync(string userId, DateOnly workDate)
         {
-            return [.. Entities
+            return await Entities
                 .Include(w => w.WorkDay)
-                .Where(w => w.WorkDay.UserId == userId && w.ProjectId == projectId)];
+                .Where(w => w.WorkDay.UserId == userId && w.WorkDay.WorkDate == workDate)
+                .ToListAsync();
         }
 
-        public List<WorkSession> GetAllUserSessionsByType(string userId, int typeId)
+        public async Task<List<WorkSession>> GetAllUserSessionsByOvertimeAsync(string userId, bool overtime)
         {
-            return [.. Entities
+            return await Entities
                 .Include(w => w.WorkDay)
-                .Where(w => w.WorkDay.UserId == userId && w.TypeId == typeId)];
+                .Where(w => w.WorkDay.UserId == userId && w.IsOvertime == overtime)
+                .ToListAsync();
         }
 
-        public WorkSession? GetById(int id)
+        public async Task<List<WorkSession>> GetAllUserSessionsByProjectAsync(string userId, int projectId)
         {
-            return Entities.FirstOrDefault(w => w.Id == id);
+            return await Entities
+                .Include(w => w.WorkDay)
+                .Where(w => w.WorkDay.UserId == userId && w.ProjectId == projectId)
+                .ToListAsync();
+        }
+
+        public async Task<List<WorkSession>> GetAllUserSessionsByTypeAsync(string userId, int typeId)
+        {
+            return await Entities
+                .Include(w => w.WorkDay)
+                .Where(w => w.WorkDay.UserId == userId && w.TypeId == typeId)
+                .ToListAsync();
+        }
+
+        public async Task<WorkSession?> GetByIdAsync(int id)
+        {
+            return await Entities.FirstOrDefaultAsync(w => w.Id == id);
         }
     }
 }

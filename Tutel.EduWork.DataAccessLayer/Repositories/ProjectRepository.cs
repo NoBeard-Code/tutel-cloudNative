@@ -7,49 +7,51 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
     public class ProjectRepository(ApplicationDbContext context) : Repository<Project>(context), IProjectRepository
     {
-        public List<Project> GetAllProjects()
+        public async Task<List<Project>> GetAllProjectsAsync()
         {
-            return [.. GetAll()];
+            return await GetAllAsync();
         }
 
-        public void AddProject(Project project)
+        public async Task AddProjectAsync(Project project)
         {
-            Add(project);
+            await AddAsync(project);
         }
 
-        public void RemoveProject(Project project)
+        public async Task RemoveProjectAsync(Project project)
         {
-            Remove(project);
+            await RemoveAsync(project);
         }
 
-        public void UpdateProject(Project project)
+        public async Task UpdateProjectAsync(Project project)
         {
-            Update(project);
+            await UpdateAsync(project);
         }
 
-        public List<Project> GetAllUserProjects(string idUser)
+        public async Task<List<Project>> GetAllUserProjectsAsync(string idUser)
         {
-            return [.. Entities.Include(p => p.UserProjects).Where(p => p.UserProjects.Any(up => up.UserId == idUser))];
+            return await Entities.Include(p => p.UserProjects)
+                                 .Where(p => p.UserProjects.Any(up => up.UserId == idUser))
+                                 .ToListAsync();
         }
 
-        public List<Project> GetByActive(bool active)
+        public async Task<List<Project>> GetByActiveAsync(bool active)
         {
-            return [.. Entities.Where(p => p.IsActive == active)];
+            return await Entities.Where(p => p.IsActive == active).ToListAsync();
         }
 
-        public List<Project> GetByBillable(bool billable)
+        public async Task<List<Project>> GetByBillableAsync(bool billable)
         {
-            return [.. Entities.Where(p => p.IsBillable == billable)];
+            return await Entities.Where(p => p.IsBillable == billable).ToListAsync();
         }
 
-        public Project? GetById(int id)
+        public async Task<Project?> GetByIdAsync(int id)
         {
-            return Entities.FirstOrDefault(p => p.Id == id);
+            return await Entities.FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public Project? GetByName(string name)
+        public async Task<Project?> GetByNameAsync(string name)
         {
-            return Entities.FirstOrDefault(p => p.Name == name);
+            return await Entities.FirstOrDefaultAsync(p => p.Name == name);
         }
     }
 }

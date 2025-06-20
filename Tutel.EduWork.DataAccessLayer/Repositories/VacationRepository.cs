@@ -1,54 +1,59 @@
-﻿using Tutel.EduWork.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Tutel.EduWork.Data;
 using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
 using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
-    public class VacationRepository(ApplicationDbContext context) : Repository<Vacation>(context), IVacationRepository
+    public class VacationRepository : Repository<Vacation>, IVacationRepository
     {
-        public List<Vacation> GetAllVacations()
+        public VacationRepository(ApplicationDbContext context) : base(context) { }
+
+        public async Task<List<Vacation>> GetAllVacationsAsync()
         {
-            return [.. GetAll()];   
+            return await GetAllAsync();
         }
 
-        public void AddVacation(Vacation vacation)
+        public async Task AddVacationAsync(Vacation vacation)
         {
-            Add(vacation);
+            await AddAsync(vacation);
         }
 
-        public void RemoveVacation(Vacation vacation)
+        public async Task RemoveVacationAsync(Vacation vacation)
         {
-            Remove(vacation);
+            await RemoveAsync(vacation);
         }
 
-        public void UpdateVacation(Vacation vacation)
+        public async Task UpdateVacationAsync(Vacation vacation)
         {
-            Update(vacation);
+            await UpdateAsync(vacation);
         }
 
-        public List<Vacation> GetAllUserVacations(string userId)
+        public async Task<List<Vacation>> GetAllUserVacationsAsync(string userId)
         {
-            return [.. Entities.Where(v => v.UserId == userId).OrderBy(v => v.StartDate)];
+            return await Entities.Where(v => v.UserId == userId)
+                                 .OrderBy(v => v.StartDate)
+                                 .ToListAsync();
         }
 
-        public List<Vacation> GetByEndDate(DateOnly endDate)
+        public async Task<List<Vacation>> GetByEndDateAsync(DateOnly endDate)
         {
-            return [.. Entities.Where(v => v.EndDate == endDate)];
+            return await Entities.Where(v => v.EndDate == endDate).ToListAsync();
         }
 
-        public Vacation? GetById(int id)
+        public async Task<Vacation?> GetByIdAsync(int id)
         {
-            return Entities.FirstOrDefault(v => v.Id == id);
+            return await Entities.FirstOrDefaultAsync(v => v.Id == id);
         }
 
-        public List<Vacation> GetByStartDate(DateOnly startDate)
+        public async Task<List<Vacation>> GetByStartDateAsync(DateOnly startDate)
         {
-            return [.. Entities.Where(v => v.StartDate == startDate)];
+            return await Entities.Where(v => v.StartDate == startDate).ToListAsync();
         }
 
-        public List<Vacation> GetByTeambuilding(bool teambuilding)
+        public async Task<List<Vacation>> GetByTeambuildingAsync(bool teambuilding)
         {
-            return [.. Entities.Where(v => v.IsTeamBuilding == teambuilding)];
+            return await Entities.Where(v => v.IsTeamBuilding == teambuilding).ToListAsync();
         }
     }
 }

@@ -4,9 +4,9 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
 {
     public interface ISickLeaveRepository : IRepository<SickLeave>
     {
-        public SickLeave? GetById(int id);
-        public List<SickLeave> GetAllUserSickLeaves(string userId);
-        public List<SickLeave> GetByStartDate(DateOnly startDate);
-        public List<SickLeave> GetByEndDate(DateOnly endDate);
+        Task<SickLeave?> GetByIdAsync(int id);
+        Task<List<SickLeave>> GetAllUserSickLeavesAsync(string userId);
+        Task<List<SickLeave>> GetByStartDateAsync(DateOnly startDate);
+        Task<List<SickLeave>> GetByEndDateAsync(DateOnly endDate);
     }
 }

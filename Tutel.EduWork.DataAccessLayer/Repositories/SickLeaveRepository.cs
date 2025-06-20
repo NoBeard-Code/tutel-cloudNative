@@ -1,49 +1,54 @@
-﻿using Tutel.EduWork.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Tutel.EduWork.Data;
 using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
 using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
-    public class SickLeaveRepository(ApplicationDbContext context) : Repository<SickLeave>(context), ISickLeaveRepository
+    public class SickLeaveRepository : Repository<SickLeave>, ISickLeaveRepository
     {
-        public List<SickLeave> GetAllSickLeaves()
+        public SickLeaveRepository(ApplicationDbContext context) : base(context) { }
+
+        public async Task<List<SickLeave>> GetAllSickLeavesAsync()
         {
-            return GetAll().ToList();
+            return await GetAllAsync();
         }
 
-        public void AddSickLeave(SickLeave sickLeave)
+        public async Task AddSickLeaveAsync(SickLeave sickLeave)
         {
-            Add(sickLeave);
+            await AddAsync(sickLeave);
         }
 
-        public void RemoveSickLeave(SickLeave sickLeave)
+        public async Task RemoveSickLeaveAsync(SickLeave sickLeave)
         {
-            Remove(sickLeave);
+            await RemoveAsync(sickLeave);
         }
 
-        public void UpdateSickLeave(SickLeave sickLeave)
+        public async Task UpdateSickLeaveAsync(SickLeave sickLeave)
         {
-            Update(sickLeave);
+            await UpdateAsync(sickLeave);
         }
 
-        public List<SickLeave> GetAllUserSickLeaves(string userId)
+        public async Task<List<SickLeave>> GetAllUserSickLeavesAsync(string userId)
         {
-            return [.. Entities.Where(s => s.UserId == userId).OrderBy(s => s.StartDate)];
+            return await Entities.Where(s => s.UserId == userId)
+                                 .OrderBy(s => s.StartDate)
+                                 .ToListAsync();
         }
 
-        public List<SickLeave> GetByEndDate(DateOnly endDate)
+        public async Task<List<SickLeave>> GetByEndDateAsync(DateOnly endDate)
         {
-            return [.. Entities.Where(sl => sl.EndDate == endDate)];
+            return await Entities.Where(sl => sl.EndDate == endDate).ToListAsync();
         }
 
-        public SickLeave? GetById(int id)
+        public async Task<SickLeave?> GetByIdAsync(int id)
         {
-            return Entities.FirstOrDefault(sl => sl.Id == id);
+            return await Entities.FirstOrDefaultAsync(sl => sl.Id == id);
         }
 
-        public List<SickLeave> GetByStartDate(DateOnly startDate)
+        public async Task<List<SickLeave>> GetByStartDateAsync(DateOnly startDate)
         {
-            return [.. Entities.Where(sl => sl.StartDate == startDate)];
+            return await Entities.Where(sl => sl.StartDate == startDate).ToListAsync();
         }
     }
 }

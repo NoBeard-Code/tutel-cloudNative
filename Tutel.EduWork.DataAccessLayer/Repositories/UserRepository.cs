@@ -7,67 +7,69 @@ using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
-    public class UserRepository(ApplicationDbContext context) : Repository<ApplicationUser>(context), IUserRepository
+    public class UserRepository : Repository<ApplicationUser>, IUserRepository
     {
-        public List<ApplicationUser> GetAllUsers()
+        public UserRepository(ApplicationDbContext context) : base(context) { }
+
+        public async Task<List<ApplicationUser>> GetAllUsersAsync()
         {
-            return [.. GetAll()];
+            return await GetAllAsync();
         }
 
-        public void AddUser(ApplicationUser user)
+        public async Task AddUserAsync(ApplicationUser user)
         {
-            Add(user);
+            await AddAsync(user);
         }
 
-        public void RemoveUser(ApplicationUser user)
+        public async Task RemoveUserAsync(ApplicationUser user)
         {
-            Remove(user);
+            await RemoveAsync(user);
         }
 
-        public void UpdateUser(ApplicationUser user)
+        public async Task UpdateUserAsync(ApplicationUser user)
         {
-            Update(user);
+            await UpdateAsync(user);
         }
 
-        public List<ApplicationUser> GetAllByRole(string role)
+        public async Task<List<ApplicationUser>> GetAllByRoleAsync(string role)
         {
-            var userIds = (from ur in Context.UserRoles
-                           join r in Context.Roles on ur.RoleId equals r.Id
-                           where r.Name == role
-                           select ur.UserId).ToList();
+            var userIds = await (from ur in Context.UserRoles
+                                 join r in Context.Roles on ur.RoleId equals r.Id
+                                 where r.Name == role
+                                 select ur.UserId).ToListAsync();
 
-            return [.. Entities.Where(u => userIds.Contains(u.Id))];
+            return await Entities.Where(u => userIds.Contains(u.Id)).ToListAsync();
         }
 
-        public ApplicationUser? GetByEmail(string email)
+        public async Task<ApplicationUser?> GetByEmailAsync(string email)
         {
-            return Entities.FirstOrDefault(u => u.Email == email);
-        }
-            
-        public ApplicationUser? GetById(string id)
-        {
-            return Entities.FirstOrDefault(u => u.Id == id);
+            return await Entities.FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public string? GetRole(string userId)
+        public async Task<ApplicationUser?> GetByIdAsync(string id)
         {
-            var roleName = (from user in Entities
-                            join userRole in Context.Set<IdentityUserRole<string>>() on user.Id equals userRole.UserId
-                            join role in Context.Set<IdentityRole>() on userRole.RoleId equals role.Id
-                            where user.Id == userId
-                            select role.Name).FirstOrDefault();
+            return await Entities.FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<string?> GetRoleAsync(string userId)
+        {
+            var roleName = await (from user in Entities
+                                  join userRole in Context.Set<IdentityUserRole<string>>() on user.Id equals userRole.UserId
+                                  join role in Context.Set<IdentityRole>() on userRole.RoleId equals role.Id
+                                  where user.Id == userId
+                                  select role.Name).FirstOrDefaultAsync();
 
             return roleName;
         }
 
-        public ApplicationUser? GetBySurname(string surname)
+        public async Task<ApplicationUser?> GetBySurnameAsync(string surname)
         {
-            return Entities.FirstOrDefault(u => u.Surname == surname);
+            return await Entities.FirstOrDefaultAsync(u => u.Surname == surname);
         }
 
-        public ApplicationUser? GetByUserName(string userName)
+        public async Task<ApplicationUser?> GetByUserNameAsync(string userName)
         {
-            return Entities.FirstOrDefault(u => u.Name == userName);
+            return await Entities.FirstOrDefaultAsync(u => u.Name == userName);
         }
     }
 }

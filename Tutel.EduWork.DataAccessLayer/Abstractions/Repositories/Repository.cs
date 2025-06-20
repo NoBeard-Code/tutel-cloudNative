@@ -19,18 +19,18 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
             Context.Dispose();
         }
 
-        public IQueryable<T> GetAll()
+        public async Task<List<T>> GetAllAsync()
         {
-            return Entities.AsQueryable();
+            return await Entities.ToListAsync();
         }
 
-        public void Add(T entity)
+        public async Task AddAsync(T entity)
         {
-            Entities.Add(entity);
-            Context.SaveChanges();
+            await Entities.AddAsync(entity);
+            await Context.SaveChangesAsync();
         }
 
-        public void Remove(T entity)
+        public async Task RemoveAsync(T entity)
         {
             if (Context.Entry(entity).State == EntityState.Detached)
             {
@@ -38,14 +38,14 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
             }
 
             Entities.Remove(entity);
-            Context.SaveChanges();
+            await Context.SaveChangesAsync();
         }
 
-        public void Update(T entity)
+        public async Task UpdateAsync(T entity)
         {
             Entities.Attach(entity);
             Context.Entry(entity).State = EntityState.Modified;
-            Context.SaveChanges();
+            await Context.SaveChangesAsync();
         }
     }
 }
