@@ -19,25 +19,25 @@ namespace Tutel.EduWork.BusinessLayer.Abstractions
             this.logger = logger;
         }
 
-        public async Task<List<TDto>> GetAllAsync()
+        public async virtual Task<List<TDto>> GetAllAsync()
         {
             var entities = await repo.GetAllAsync();
             return mapper.Map<List<TDto>>(entities);
         }
 
-        public async Task AddAsync(TDto dto)
+        public async virtual Task AddAsync(TDto dto)
         {
             var entity = mapper.Map<TEntity>(dto);
             await repo.AddAsync(entity);
         }
 
-        public async Task RemoveAsync(TDto dto)
+        public async virtual Task RemoveAsync(TDto dto)
         {
             var entity = mapper.Map<TEntity>(dto);
             await repo.RemoveAsync(entity);
         }
 
-        public async Task UpdateAsync(TDto dto)
+        public async virtual Task UpdateAsync(TDto dto)
         {
             var entity = mapper.Map<TEntity>(dto);
             await repo.UpdateAsync(entity);
