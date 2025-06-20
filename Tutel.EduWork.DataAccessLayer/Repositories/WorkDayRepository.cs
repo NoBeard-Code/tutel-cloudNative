@@ -1,0 +1,56 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Tutel.EduWork.Data;
+using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
+using Tutel.EduWork.DataAccessLayer.Entities;
+
+namespace Tutel.EduWork.DataAccessLayer.Repositories
+{
+    public class WorkDayRepository : Repository<WorkDay>, IWorkDayRepository
+    {
+        public WorkDayRepository(ApplicationDbContext context) : base(context) { }
+
+        public async Task<List<WorkDay>> GetAllWorkDaysAsync()
+        {
+            return await GetAllAsync();
+        }
+
+        public async Task AddWorkDayAsync(WorkDay workDay)
+        {
+            await AddAsync(workDay);
+        }
+
+        public async Task RemoveWorkDayAsync(WorkDay workDay)
+        {
+            await RemoveAsync(workDay);
+        }
+
+        public async Task UpdateWorkDayAsync(WorkDay workDay)
+        {
+            await UpdateAsync(workDay);
+        }
+
+        public async Task<List<WorkDay>> GetAllUserWorkDaysAsync(string userId)
+        {
+            return await Entities.Where(w => w.UserId == userId)
+                                 .OrderBy(w => w.WorkDate)
+                                 .ToListAsync();
+        }
+
+        public async Task<List<WorkDay>> GetAllUserWorkDaysStartAsync(int userId, TimeOnly startTime)
+        {
+            return await Entities.Where(w => w.UserId == userId.ToString() && w.WorkDayStart >= startTime)
+                                 .ToListAsync();
+        }
+
+        public async Task<WorkDay?> GetByIdAsync(int id)
+        {
+            return await Entities.FirstOrDefaultAsync(w => w.Id == id);
+        }
+
+        public async Task<WorkDay?> GetByUserIdWorkDateAsync(int userId, DateOnly workDate)
+        {
+            return await Entities.FirstOrDefaultAsync(w =>
+                w.UserId == userId.ToString() && w.WorkDate == workDate);
+        }
+    }
+}

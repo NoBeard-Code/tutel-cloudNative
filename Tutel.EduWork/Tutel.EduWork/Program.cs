@@ -6,7 +6,9 @@ using Tutel.EduWork.Components;
 using Tutel.EduWork.Components.Account;
 using Tutel.EduWork.Data;
 using Tutel.EduWork.DataAccessLayer;
+using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
 using Tutel.EduWork.DataAccessLayer.Entities;
+using Tutel.EduWork.DataAccessLayer.Repositories;
 
 namespace Tutel.EduWork
 {
@@ -45,6 +47,17 @@ namespace Tutel.EduWork
                 .AddDefaultTokenProviders();
 
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+            #region REPOS
+
+            builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+            builder.Services.AddScoped<ISickLeaveRepository, SickLeaveRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IVacationRepository, VacationRepository>();
+            builder.Services.AddScoped<IWorkDayRepository, WorkDayRepository>();
+            builder.Services.AddScoped<IWorkSessionRepository, WorkSessionRepository>();    
+
+            #endregion
 
             #region SEED
 
