@@ -24,11 +24,11 @@ namespace Tutel.EduWork.BusinessLayer.Services
             _logger = logger;
         }
 
-        public async Task AddWorkSessionAsync(WorkSessionDTO entity)
+        public async Task AddAsync(WorkSessionDTO entity)
         {
             try
             {
-                await AddAsync(entity);
+                await base.AddAsync(entity);
             } 
             catch (Exception ex)
             {
@@ -37,11 +37,11 @@ namespace Tutel.EduWork.BusinessLayer.Services
             }
         }
 
-        public async Task<List<WorkSessionDTO>> GetAllWorkSessionAsync()
+        public async Task<List<WorkSessionDTO>> GetAllAsync()
         {
             try
             {
-                var workSessions = await GetAllAsync();
+                var workSessions = await base.GetAllAsync();
                 return _mapper.Map<List<WorkSessionDTO>>(workSessions);
             }
             catch (Exception ex)
@@ -153,7 +153,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
-                await _workSessionRepo.RemoveAsync(_mapper.Map<WorkSession>(entity));
+                await base.RemoveAsync(entity);
             }
             catch (Exception ex)
             {
@@ -166,7 +166,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
-                await _workSessionRepo.UpdateAsync(_mapper.Map<WorkSession>(entity));
+                await base.UpdateAsync(entity);
             }
             catch (Exception ex)
             {

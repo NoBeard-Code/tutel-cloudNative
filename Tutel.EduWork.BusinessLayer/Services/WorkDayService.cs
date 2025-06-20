@@ -24,11 +24,11 @@ namespace Tutel.EduWork.BusinessLayer.Services
             _logger = logger;
         }
 
-        public async Task AddWorkDayAsync(WorkDayDTO entity)
+        public async Task AddAsync(WorkDayDTO entity)
         {
             try
             {
-                await AddAsync(entity);
+                await base.AddAsync(entity);
             }
             catch (Exception ex) 
             {
@@ -37,16 +37,41 @@ namespace Tutel.EduWork.BusinessLayer.Services
             }
         }
 
-        public async Task<List<WorkDayDTO>> GetAllWorkDaysAsync()
+        public async Task<List<WorkDayDTO>> GetAllAsync()
         {
             try
             {
-                var workDays = await GetAllAsync();
+                var workDays = await base.GetAllAsync();
                 return _mapper.Map<List<WorkDayDTO>>(workDays);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting all work days");
+                throw;
+            }
+        }
+
+        public async Task UpdateAsync(WorkDayDTO entity)
+        {
+            try
+            {
+                await base.UpdateAsync(entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating work day");
+                throw;
+            }
+        }
+        public async Task RemoveAsync(WorkDayDTO entity)
+        {
+            try
+            {
+                await base.RemoveAsync(entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting work day");
                 throw;
             }
         }

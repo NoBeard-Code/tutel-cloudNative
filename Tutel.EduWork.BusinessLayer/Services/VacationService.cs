@@ -33,8 +33,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
-                var vacationEntity = _mapper.Map<VacationDTO>(entity);
-                await base.AddAsync(vacationEntity);
+                await base.AddAsync(entity);
             }
             catch (Exception ex)
             {
@@ -48,7 +47,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
             try
             {
                 var users = await base.GetAllAsync();
-                return _mapper.Map<List<VacationDTO>>(users);
+                return users;
             }
             catch (Exception ex)
             {
@@ -131,7 +130,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
-                await base.RemoveAsync(_mapper.Map<VacationDTO>(entity));
+                await base.RemoveAsync(entity);
             }
             catch (Exception ex)
             {
@@ -144,7 +143,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
-                await base.UpdateAsync(_mapper.Map<VacationDTO>(entity));
+                await base.UpdateAsync(entity);
             }
             catch (Exception ex)
             {

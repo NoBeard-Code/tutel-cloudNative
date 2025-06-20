@@ -138,7 +138,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
-                await _userRepo.RemoveAsync(_mapper.Map<ApplicationUser>(entity));
+                await base.RemoveAsync(entity);
             }
             catch (Exception ex)
             {
@@ -151,7 +151,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
-                await _userRepo.UpdateAsync(_mapper.Map<ApplicationUser>(entity));
+                await base.UpdateAsync(entity);
             }
             catch (Exception ex)
             {
