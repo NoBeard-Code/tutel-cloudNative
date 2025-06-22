@@ -57,10 +57,12 @@ namespace Tutel.EduWork
             #endregion
 
             #region SERVICES
-
-            // builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IProjectService, ProjectService>();
+            builder.Services.AddScoped<ISickLeaveService, SickLeaveService>();
+            builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IWorkSessionService, WorkSessionService>();
             builder.Services.AddScoped<IWorkDayService, WorkDayService>();
+            builder.Services.AddScoped<IVacationService, VacationService>();
 
             #endregion
 
