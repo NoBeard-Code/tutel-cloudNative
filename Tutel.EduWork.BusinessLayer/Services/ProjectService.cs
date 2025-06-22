@@ -1,0 +1,54 @@
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Tutel.EduWork.BusinessLayer.Abstractions;
+using Tutel.EduWork.BusinessLayer.DTOs;
+using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
+using Tutel.EduWork.DataAccessLayer.Entities;
+
+namespace Tutel.EduWork.BusinessLayer.Services
+{
+    public class ProjectService : Service<Project, ProjectDTO>, IProjectService
+    {
+        private readonly IProjectRepository _projectRepo;
+        private readonly IMapper _mapper;
+        private readonly ILogger<SickLeaveService> _logger;
+
+        public ProjectService(
+            IProjectRepository projectRepo,
+            IMapper mapper,
+            ILogger<SickLeaveService> logger
+        ) : base(projectRepo, mapper, logger)
+        {
+            _projectRepo = projectRepo;
+            _mapper = mapper;
+            _logger = logger;
+        }
+
+        public async Task<ProjectDTO> Get(int id)
+        {
+            return _mapper.Map<ProjectDTO>(await _projectRepo.GetByIdAsync(id));
+        }
+
+        public async Task<ProjectDTO> GetByName(string name)
+        {
+            return _mapper.Map<ProjectDTO>(await _projectRepo.GetByNameAsync(name));
+        }
+
+        public async Task<List<ProjectDTO>> GetAllActive(bool isActive)
+        {
+            var entities = await _projectRepo.GetByActiveAsync(isActive);
+            return _mapper.Map<List<Project>, List<ProjectDTO>>(entities);
+        }
+
+        public async Task<List<ProjectDTO>> GetAllBillable(bool isBillable)
+        {
+            var entities = await _projectRepo.GetByBillableAsync(isBillable);
+            return _mapper.Map<List<Project>, List<ProjectDTO>>(entities);
+        }
+    }
+}
