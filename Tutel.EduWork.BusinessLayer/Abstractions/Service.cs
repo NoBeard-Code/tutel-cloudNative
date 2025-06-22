@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
+using System;
 using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
 
 namespace Tutel.EduWork.BusinessLayer.Abstractions
@@ -22,7 +23,7 @@ namespace Tutel.EduWork.BusinessLayer.Abstractions
         public async virtual Task<List<TDto>> GetAllAsync()
         {
             var entities = await repo.GetAllAsync();
-            return mapper.Map<List<TDto>>(entities);
+            return mapper.Map<List<TEntity>, List<TDto>>(entities);
         }
 
         public async virtual Task AddAsync(TDto dto)
