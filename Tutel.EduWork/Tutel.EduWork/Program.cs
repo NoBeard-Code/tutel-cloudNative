@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Tutel.EduWork.Client.Pages;
+using Tutel.EduWork.BusinessLayer.Abstractions;
+using Tutel.EduWork.BusinessLayer.Services;
 using Tutel.EduWork.Components;
 using Tutel.EduWork.Components.Account;
 using Tutel.EduWork.Data;
@@ -47,6 +48,23 @@ namespace Tutel.EduWork
                 .AddDefaultTokenProviders();
 
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+            #region MAPPER
+
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            #endregion
+
+            #region SERVICES
+
+            builder.Services.AddScoped<IProjectService, ProjectService>();
+            builder.Services.AddScoped<ISickLeaveService, SickLeaveService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IWorkSessionService, WorkSessionService>();
+            builder.Services.AddScoped<IWorkDayService, WorkDayService>();
+            builder.Services.AddScoped<IVacationService, VacationService>();
+
+            #endregion
 
             #region REPOS
 

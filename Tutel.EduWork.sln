@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutel.EduWork.DataAccessLay
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutel.EduWork.BusinessLayer", "Tutel.EduWork.BusinessLayer\Tutel.EduWork.BusinessLayer.csproj", "{FB674FF7-30DC-4F08-B3C4-125FD56A0B58}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutel.EduWork.BusinessLayer.Test", "Tutel.EduWork.BusinessLayer.Test\Tutel.EduWork.BusinessLayer.Test.csproj", "{F7EE3DF2-10A6-455D-884F-DA58397F0363}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{FB674FF7-30DC-4F08-B3C4-125FD56A0B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB674FF7-30DC-4F08-B3C4-125FD56A0B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB674FF7-30DC-4F08-B3C4-125FD56A0B58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7EE3DF2-10A6-455D-884F-DA58397F0363}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7EE3DF2-10A6-455D-884F-DA58397F0363}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7EE3DF2-10A6-455D-884F-DA58397F0363}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7EE3DF2-10A6-455D-884F-DA58397F0363}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
