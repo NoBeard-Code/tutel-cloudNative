@@ -2,13 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Tutel.EduWork.BusinessLayer;
-using Tutel.EduWork.BusinessLayer.Abstractions;
 using Tutel.EduWork.BusinessLayer.DTOs;
 using Tutel.EduWork.BusinessLayer.maps;
 using Tutel.EduWork.BusinessLayer.Services;
 using Tutel.EduWork.Data;
-using Tutel.EduWork.DataAccessLayer.Entities;
 using Tutel.EduWork.DataAccessLayer.Repositories;
 namespace Tutel.EduWork.BusinessLayer.Test
 {

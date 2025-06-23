@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Tutel.EduWork.BusinessLayer.Abstractions;
 using Tutel.EduWork.BusinessLayer.Services;
-using Tutel.EduWork.Client.Pages;
 using Tutel.EduWork.Components;
 using Tutel.EduWork.Components.Account;
 using Tutel.EduWork.Data;
@@ -57,6 +56,7 @@ namespace Tutel.EduWork
             #endregion
 
             #region SERVICES
+
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<ISickLeaveService, SickLeaveService>();
             builder.Services.AddScoped<IUserService, UserService>();

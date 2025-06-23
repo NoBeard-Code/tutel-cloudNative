@@ -1,11 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tutel.EduWork.BusinessLayer.Abstractions;
 using Tutel.EduWork.BusinessLayer.DTOs;
 using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
