@@ -11,12 +11,12 @@ namespace Tutel.EduWork.BusinessLayer.Services
     {
         private readonly IProjectRepository _projectRepo;
         private readonly IMapper _mapper;
-        private readonly ILogger<SickLeaveService> _logger;
+        private readonly ILogger<ProjectService> _logger;
 
         public ProjectService(
             IProjectRepository projectRepo,
             IMapper mapper,
-            ILogger<SickLeaveService> logger
+            ILogger<ProjectService> logger
         ) : base(projectRepo, mapper, logger)
         {
             _projectRepo = projectRepo;
