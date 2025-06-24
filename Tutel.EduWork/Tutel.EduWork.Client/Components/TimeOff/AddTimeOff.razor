@@ -1,0 +1,140 @@
+﻿@page "/addabsence"
+@using Tutel.EduWork.BusinessLayer.Abstractions
+@using Tutel.EduWork.BusinessLayer.DTOs
+
+@inject NavigationManager NavigationManager
+@inject IVacationService vacationService
+@inject ISickLeaveService sickLeaveService
+
+<h3>Dodaj odsutnost</h3>
+
+<div class="mb-3">
+    <label class="form-label">Vrsta odsutnosti</label>
+    <select class="form-select" @bind="selectedType">
+        <option value="vacation">Godišnji odmor</option>
+        <option value="sickleave">Bolovanje</option>
+    </select>
+</div>
+
+@if (selectedType == "vacation")
+{
+    <EditForm Model="@vacation" OnValidSubmit="HandleVacationSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Datum početka</label>
+            <InputDate @bind-Value="vacation.StartDate" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Datum kraja</label>
+            <InputDate @bind-Value="vacation.EndDate" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Godina</label>
+            <InputNumber @bind-Value="vacation.Year" class="form-control" />
+        </div>
+        <div class="form-check mb-3">
+            <InputCheckbox @bind-Value="vacation.IsTeamBuilding" class="form-check-input" />
+            <label class="form-check-label">Teambuilding</label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Korisnik (UserId)</label>
+            <InputText @bind-Value="vacation.UserId" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Spremi</button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Natrag</button>
+    </EditForm>
+}
+else if (selectedType == "sickleave")
+{
+    <EditForm Model="@sickLeave" OnValidSubmit="HandleSickLeaveSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Datum početka</label>
+            <InputDate @bind-Value="sickLeave.StartDate" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Datum kraja</label>
+            <InputDate @bind-Value="sickLeave.EndDate" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Razlog bolovanja</label>
+            <InputText @bind-Value="sickLeave.Reason" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Korisnik (UserId)</label>
+            <InputText @bind-Value="sickLeave.UserId" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Spremi</button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Natrag</button>
+    </EditForm>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert @alertClass mt-3">@message</div>
+}
+
+@code {
+    private string selectedType = "vacation";
+    private string message = "";
+    private string alertClass = "";
+
+    private VacationDTO vacation = new VacationDTO
+    {
+        StartDate = DateOnly.FromDateTime(DateTime.Today),
+        EndDate = DateOnly.FromDateTime(DateTime.Today),
+        Year = DateTime.Today.Year
+    };
+    private SickLeaveDTO sickLeave = new SickLeaveDTO
+    {
+        StartDate = DateOnly.FromDateTime(DateTime.Today),
+        EndDate = DateOnly.FromDateTime(DateTime.Today)
+    };
+
+    private async Task HandleVacationSubmit()
+    {
+        try
+        {
+            await vacationService.AddAsync(vacation);
+            message = "Godišnji odmor uspješno dodan!";
+            alertClass = "alert-success";
+            StateHasChanged();
+            await Task.Delay(1200);
+            NavigationManager.NavigateTo("/timeoff");
+        }
+        catch (Exception ex)
+        {
+            message = $"Greška: {ex.Message}";
+            alertClass = "alert-danger";
+        }
+    }
+
+    private async Task HandleSickLeaveSubmit()
+    {
+        try
+        {
+            await sickLeaveService.AddAsync(sickLeave);
+            message = "Bolovanje uspješno dodano!";
+            alertClass = "alert-success";
+            StateHasChanged();
+            await Task.Delay(1200);
+            NavigationManager.NavigateTo("/timeoff");
+        }
+        catch (Exception ex)
+        {
+            message = $"Greška: {ex.Message}";
+            alertClass = "alert-danger";
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/timeoff");
+    }
+}

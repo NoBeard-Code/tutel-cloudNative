@@ -9,7 +9,12 @@ namespace Tutel.EduWork.BusinessLayer.maps
         public SickLeaveMap()
         {
             CreateMap<SickLeaveDTO, SickLeave>();
-            CreateMap<SickLeave, SickLeaveDTO>();
+            CreateMap<SickLeave, SickLeaveDTO>()
+                .ForMember(dest => dest.FullName,
+                    opt => opt.MapFrom(src =>
+                        src.User != null
+                            ? src.User.Name + " " + src.User.Surname
+                            : string.Empty));
         }
     }
 }
