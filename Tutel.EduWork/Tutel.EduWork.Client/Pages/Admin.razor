@@ -1,0 +1,37 @@
+﻿@page "/admin"
+@using Tutel.EduWork.BusinessLayer.Abstractions
+@using Tutel.EduWork.BusinessLayer.DTOs
+@using Tutel.EduWork.Client.Components.Admin
+
+@inject IUserService userService;
+@inject IProjectService projectService;
+
+<PageTitle>Admin</PageTitle>
+
+@if (!isLoaded)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <AdminDashboard NumberOfUsers="numberOfUsers" NumberOfActiveProjects="numberOfActiveProjects" />
+    <AdminUserList Users="users" />
+}
+
+@code {
+    private List<UserDTO> users = new();
+    private int numberOfUsers;
+    private int numberOfActiveProjects;
+    private bool isLoaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await userService.GetAllAsync();
+        numberOfUsers = users.Count;
+
+        var projects = await projectService.GetAllActive(true);
+        numberOfActiveProjects = projects.Count;
+
+        isLoaded = true;
+    }
+}

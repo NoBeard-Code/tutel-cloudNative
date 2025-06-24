@@ -1,0 +1,51 @@
+﻿@using Tutel.EduWork.BusinessLayer.Abstractions
+@using Tutel.EduWork.BusinessLayer.DTOs
+
+@inject IUserService userService
+@inject IProjectService projectService
+
+<h3>Brzi pregled</h3>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card text-bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Ukupan broj korisnika</h5>
+                <p class="card-text display-6">@NumberOfUsers</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card text-bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Broj unešenih sati</h5>
+                <p class="card-text display-6">TODO</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card text-bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Broj aktivnih projekata</h5>
+                <p class="card-text display-6">@NumberOfActiveProjects</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">Broj korisnika bez unešenih sati</h5>
+                <p class="card-text display-6">TODO</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int NumberOfUsers { get; set; }
+    [Parameter] public int NumberOfActiveProjects { get; set; }
+}
+
