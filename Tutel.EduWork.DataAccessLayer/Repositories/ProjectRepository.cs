@@ -5,7 +5,7 @@ using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
-    public class ProjectRepository(ApplicationDbContext context) : Repository<Project>(context), IProjectRepository
+    public class ProjectRepository(ApplicationDbContext context) : EntityRepository<Project>(context), IProjectRepository
     {
         public async Task<List<Project>> GetAllProjectsAsync()
         {

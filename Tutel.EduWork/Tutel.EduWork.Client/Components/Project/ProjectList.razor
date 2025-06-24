@@ -1,0 +1,120 @@
+﻿@using Tutel.EduWork.BusinessLayer.Abstractions
+@using Tutel.EduWork.BusinessLayer.DTOs
+
+@inject NavigationManager NavigationManager
+@inject IProjectService projectService
+
+<button class="btn btn-success mb-3" @onclick="NavigateToAddPage">Dodaj novi projekt</button>
+
+<h3>Prikaz projekata</h3>
+
+@if (projects == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="mb-3">
+        <label for="statusFilter" class="form-label me-2">Prikaži:</label>
+        <select id="statusFilter" class="form-select d-inline-block w-auto"
+                @bind="SelectedStatus">
+            <option value="active">Aktivni</option>
+            <option value="inactive">Neaktivni</option>
+            <option value="all">Svi</option>
+        </select>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Naziv projekta</th>
+                <th>Opis</th>
+                <th>Aktivan</th>
+                <th>Naplaćen</th>
+                <th>Akcije</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var project in filteredProjects)
+            {
+                <tr>
+                    <td>@project.Name</td>
+                    <td>@project.Description</td>
+                    <td>@(project.IsActive ? "Da" : "Ne")</td>
+                    <td>@(project.IsBillable ? "Da" : "Ne")</td>
+                    <td>
+                        <button type="button" class="btn btn-primary" @onclick="() => EditProject(project.Id)">Uredi</button>
+                        @if (project.IsActive)
+                        {
+                            <button type="button" class="btn btn-danger" @onclick="() => DeactivateProject(project.Id)">Obriši</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<ProjectDTO> projects;
+    private List<ProjectDTO> filteredProjects = new();
+
+    private string _selectedStatus = "active";
+    private string SelectedStatus
+    {
+        get => _selectedStatus;
+        set
+        {
+            if (_selectedStatus != value)
+            {
+                _selectedStatus = value;
+                FilterProjects();
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        projects = await projectService.GetAllAsync();
+        FilterProjects();
+    }
+
+    private void FilterProjects()
+    {
+        switch (SelectedStatus)
+        {
+            case "active":
+                filteredProjects = projects.Where(p => p.IsActive).ToList();
+                break;
+            case "inactive":
+                filteredProjects = projects.Where(p => !p.IsActive).ToList();
+                break;
+            default:
+                filteredProjects = projects.ToList();
+                break;
+        }
+    }
+
+    private async Task DeactivateProject(int id)
+    {
+        var project = projects.FirstOrDefault(p => p.Id == id);
+        if (project != null)
+        {
+            project.IsActive = false;
+            await projectService.UpdateAsync(project);
+            projects = await projectService.GetAllAsync();
+            FilterProjects();
+            StateHasChanged();
+        }
+    }
+
+    private void EditProject(int id)
+    {
+        NavigationManager.NavigateTo($"/editproject/{id}");
+    }
+
+    private void NavigateToAddPage()
+    {
+        NavigationManager.NavigateTo("/addproject");
+    }
+}

@@ -1,0 +1,82 @@
+﻿@page "/addproject"
+@using Tutel.EduWork.BusinessLayer.Abstractions
+@using Tutel.EduWork.BusinessLayer.DTOs
+
+@inject NavigationManager NavigationManager
+
+<h3>Add Project</h3>
+
+<EditForm Model="@projectDTO" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Naziv</label>
+        <InputText id="name" class="form-control" @bind-Value="projectDTO.Name" />
+        <ValidationMessage For="@(() => projectDTO.Name)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Opis</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="projectDTO.Description" />
+        <ValidationMessage For="@(() => projectDTO.Description)" />
+    </div>
+
+    <div class="form-check mb-3">
+        <InputCheckbox id="isBillable" class="form-check-input" @bind-Value="projectDTO.IsBillable" />
+        <label for="isBillable" class="form-check-label">Naplaćen</label>
+    </div>
+
+    <div class="form-check mb-3">
+        <InputCheckbox id="isActive" class="form-check-input" @bind-Value="projectDTO.IsActive" />
+        <label for="isActive" class="form-check-label">Aktivan</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+        Spremi projekt
+    </button>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="mt-3 alert @alertClass">@message</div>
+    }
+</EditForm>
+
+@inject IProjectService projectService
+
+@code {
+    private ProjectDTO projectDTO = new ProjectDTO();
+    private bool isSubmitting = false;
+    private string message = string.Empty;
+    private bool created = false;
+    private string alertClass = "";
+
+    private async Task HandleValidSubmit()
+    {
+        isSubmitting = true;
+        message = string.Empty;
+        created = false;
+
+        try
+        {
+            await projectService.AddAsync(projectDTO);
+            message = "Projekt uspješno kreiran";
+            alertClass = "alert-success";
+            created = true;
+            projectDTO = new ProjectDTO();
+        }
+        catch (Exception ex)
+        {
+            message = $"Greška prilikom kreiranja projekta: {ex.Message}";
+            alertClass = "alert-danger";
+            created = false;
+        }
+        finally
+        {
+            isSubmitting = false;
+            if (created)
+            {
+                NavigationManager.NavigateTo("/project");
+            }            
+        }
+    }
+}

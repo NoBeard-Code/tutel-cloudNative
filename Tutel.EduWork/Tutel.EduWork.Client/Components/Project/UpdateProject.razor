@@ -1,0 +1,115 @@
+﻿@page "/editproject/{ProjectId:int}"
+@using Tutel.EduWork.BusinessLayer.Abstractions
+@using Tutel.EduWork.BusinessLayer.DTOs
+
+@inject NavigationManager NavigationManager
+@inject IProjectService projectService
+
+<h3>Uredi projekt</h3>
+
+@if (loading)
+{
+    <p><em>Učitavanje...</em></p>
+}
+else if (notFound)
+{
+    <div class="alert alert-danger">Projekt nije pronađen.</div>
+}
+else
+{
+    <EditForm Model="@projectDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Naziv</label>
+            <InputText id="name" class="form-control" @bind-Value="projectDTO.Name" />
+            <ValidationMessage For="@(() => projectDTO.Name)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Opis</label>
+            <InputTextArea id="description" class="form-control" @bind-Value="projectDTO.Description" />
+            <ValidationMessage For="@(() => projectDTO.Description)" />
+        </div>
+
+        <div class="form-check mb-3">
+            <InputCheckbox id="isBillable" class="form-check-input" @bind-Value="projectDTO.IsBillable" />
+            <label for="isBillable" class="form-check-label">Naplaćen</label>
+        </div>
+
+        <div class="form-check mb-3">
+            <InputCheckbox id="isActive" class="form-check-input" @bind-Value="projectDTO.IsActive" />
+            <label for="isActive" class="form-check-label">Aktivan</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+            Spremi promjene
+        </button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="BackToList">Odustani</button>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="mt-3 alert @alertClass">@message</div>
+        }
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    private ProjectDTO projectDTO = new ProjectDTO();
+    private bool isSubmitting = false;
+    private string message = string.Empty;
+    private string alertClass = "";
+    private bool loading = true;
+    private bool notFound = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            projectDTO = await projectService.Get(ProjectId);
+            if (projectDTO == null)
+            {
+                notFound = true;
+            }
+        }
+        catch
+        {
+            notFound = true;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        isSubmitting = true;
+        message = string.Empty;
+
+        try
+        {
+            await projectService.UpdateAsync(projectDTO);
+            message = "Projekt uspješno ažuriran.";
+            alertClass = "alert-success";
+            NavigationManager.NavigateTo("/project");
+        }
+        catch (Exception ex)
+        {
+            message = $"Greška prilikom ažuriranja projekta: {ex.Message}";
+            alertClass = "alert-danger";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void BackToList()
+    {
+        NavigationManager.NavigateTo("/project");
+    }
+}

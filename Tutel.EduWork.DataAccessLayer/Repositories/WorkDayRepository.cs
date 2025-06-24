@@ -5,7 +5,7 @@ using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.DataAccessLayer.Repositories
 {
-    public class WorkDayRepository : Repository<WorkDay>, IWorkDayRepository
+    public class WorkDayRepository : EntityRepository<WorkDay>, IWorkDayRepository
     {
         public WorkDayRepository(ApplicationDbContext context) : base(context) { }
 
