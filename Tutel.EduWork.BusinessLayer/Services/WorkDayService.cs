@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Tutel.EduWork.BusinessLayer.Abstractions;
 using Tutel.EduWork.BusinessLayer.DTOs;
+using Tutel.EduWork.BusinessLayer.Exceptions;
 using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
 using Tutel.EduWork.DataAccessLayer.Entities;
 
@@ -24,7 +25,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
             _logger = logger;
         }
 
-        public async Task AddAsync(WorkDayDTO entity)
+        public override async Task AddAsync(WorkDayDTO entity)
         {
             try
             {
@@ -90,7 +91,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
             }
         }
 
-        public async Task<List<WorkDayDTO>> GetAllUserWorkDaysStartAsync(int userId, TimeOnly startTime)
+        public async Task<List<WorkDayDTO>> GetAllUserWorkDaysStartAsync(string userId, TimeOnly startTime)
         {
             try
             {
@@ -118,7 +119,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
             }
         }
 
-        public async Task<WorkDayDTO?> GetByUserIdWorkDateAsync(int userId, DateOnly workDate)
+        public async Task<WorkDayDTO?> GetByUserIdWorkDateAsync(string userId, DateOnly workDate)
         {
             try
             {
