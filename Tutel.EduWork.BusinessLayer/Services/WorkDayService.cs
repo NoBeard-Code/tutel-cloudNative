@@ -29,6 +29,10 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
+                if (await _workDayRepo.GetByUserIdWorkDateAsync(entity.UserId, entity.WorkDate) != null)
+                {
+                    throw new DuplicateInsertException("Već postoji radni dan za ovog korisnika.");
+                }
                 await base.AddAsync(entity);
             }
             catch (Exception ex) 
