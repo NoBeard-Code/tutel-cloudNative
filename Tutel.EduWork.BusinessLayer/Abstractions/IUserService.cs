@@ -10,5 +10,8 @@ namespace Tutel.EduWork.BusinessLayer.Abstractions
         Task<UserDTO?> GetBySurnameAsync(string surname);
         Task<string?> GetRoleAsync(string userId);
         Task<List<UserDTO>> GetAllByRoleAsync(string role);
+        Task<List<string>> GetUserRolesAsync(string userId);
+        Task AddRoleToUserAsync(string userId, string roleName);
+        Task RemoveRoleFromUserAsync(string userId, string roleName);
     }
 }

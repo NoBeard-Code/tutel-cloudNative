@@ -13,6 +13,7 @@ namespace Tutel.EduWork.Extensions
             services.AddScoped<IWorkSessionService, WorkSessionService>();
             services.AddScoped<IWorkDayService, WorkDayService>();
             services.AddScoped<IVacationService, VacationService>();
+            services.AddScoped<IRoleService, RoleService>();    
 
             return services;
         }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Tutel.EduWork.BusinessLayer.Abstractions;
 using Tutel.EduWork.BusinessLayer.DTOs;
@@ -12,16 +13,22 @@ namespace Tutel.EduWork.BusinessLayer.Services
         private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
         private readonly ILogger<WorkSessionService> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public UserService(
             IUserRepository userRepo,
             IMapper mapper,
-            ILogger<WorkSessionService> logger
+            ILogger<WorkSessionService> logger,
+            UserManager<ApplicationUser> userManager,
+             RoleManager<IdentityRole> roleManager
         ) : base(userRepo, mapper, logger)
         {
             _userRepo = userRepo;
             _mapper = mapper;
             _logger = logger;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public async Task AddUserAsync(UserDTO entity)
@@ -159,5 +166,40 @@ namespace Tutel.EduWork.BusinessLayer.Services
                 throw;
             }
         }
+
+        public async Task<List<string>> GetUserRolesAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return new List<string>();
+
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
+        }
+
+        public async Task AddRoleToUserAsync(string userId, string roleName)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var roleExists = await _roleManager.RoleExistsAsync(roleName);
+
+            var isInRole = await _userManager.IsInRoleAsync(user, roleName);
+            if (!isInRole)
+            {
+                var result = await _userManager.AddToRoleAsync(user, roleName);
+            }
+        }
+
+        public async Task RemoveRoleFromUserAsync(string userId, string roleName)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var isInRole = await _userManager.IsInRoleAsync(user, roleName);
+            if (isInRole)
+            {
+                var result = await _userManager.RemoveFromRoleAsync(user, roleName);
+            }
+        }
+
     }
 }
