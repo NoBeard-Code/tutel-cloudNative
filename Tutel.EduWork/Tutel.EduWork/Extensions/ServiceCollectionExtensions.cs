@@ -7,8 +7,6 @@ namespace Tutel.EduWork.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            Console.WriteLine("Registering services...");
-
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<ISickLeaveService, SickLeaveService>();
             services.AddScoped<IUserService, UserService>();

@@ -7,8 +7,6 @@ namespace Tutel.EduWork.Extensions
     {
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            Console.WriteLine("Registering repositories...");
-
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<ISickLeaveRepository, SickLeaveRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
