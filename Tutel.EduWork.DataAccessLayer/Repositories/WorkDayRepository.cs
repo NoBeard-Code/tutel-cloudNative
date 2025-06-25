@@ -36,9 +36,9 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
                                  .ToListAsync();
         }
 
-        public async Task<List<WorkDay>> GetAllUserWorkDaysStartAsync(int userId, TimeOnly startTime)
+        public async Task<List<WorkDay>> GetAllUserWorkDaysStartAsync(string userId, TimeOnly startTime)
         {
-            return await Entities.Where(w => w.UserId == userId.ToString() && w.WorkDayStart >= startTime)
+            return await Entities.Where(w => w.UserId == userId && w.WorkDayStart >= startTime)
                                  .ToListAsync();
         }
 
@@ -47,10 +47,10 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
             return await Entities.FirstOrDefaultAsync(w => w.Id == id);
         }
 
-        public async Task<WorkDay?> GetByUserIdWorkDateAsync(int userId, DateOnly workDate)
+        public async Task<WorkDay?> GetByUserIdWorkDateAsync(string userId, DateOnly workDate)
         {
             return await Entities.FirstOrDefaultAsync(w =>
-                w.UserId == userId.ToString() && w.WorkDate == workDate);
+                w.UserId == userId && w.WorkDate == workDate);
         }
     }
 }
