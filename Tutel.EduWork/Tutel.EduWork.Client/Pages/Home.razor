@@ -16,6 +16,7 @@
             </div>
             <div class="col-sm-auto">
                 <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" hidden=@workDayAlreadyExists>
                     Dodaj radni dan
                 </button>
             </div>
@@ -35,6 +36,8 @@ Welcome to your new app.
 {
     private DateTime WorkDayStartTime;
     private DateTime SelectedDate;
+
+    private bool workDayAlreadyExists = false;
 
     private WorkDayDTO workDay = new WorkDayDTO();
     private string? message = "";
@@ -57,10 +60,12 @@ Welcome to your new app.
         {
             messageClass = "alert-warning";
             message = $"Još niste unijeli radni dan za datum: {workDay.WorkDate}";
+            workDayAlreadyExists = false;
         }
         else
         {
             message = "";
+            workDayAlreadyExists = true;
         }
     }
 
@@ -75,16 +80,19 @@ Welcome to your new app.
             await workDayService.AddAsync(workDay);
             messageClass = "alert-success";
             message = "Radni dan je uspješno dodan.";
+            workDayAlreadyExists = true;
         }
         catch (DuplicateInsertException ex)
         {
             message = ex.Message;
             messageClass = "alert-danger";
+            workDayAlreadyExists = false;
         }
         catch (Exception ex)
         {
             message = "Dodavanje radnog dana nije bilo uspješno.";
             messageClass = "alert-danger";
+            workDayAlreadyExists = false;
         }
     }
 }
