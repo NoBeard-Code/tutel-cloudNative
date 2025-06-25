@@ -9,7 +9,9 @@ namespace Tutel.EduWork.BusinessLayer.maps
         public UserMap()
         {
             CreateMap<UserDTO, ApplicationUser>();
-            CreateMap<ApplicationUser, UserDTO>();
+            CreateMap<ApplicationUser, UserDTO>()
+                .ForMember(dest => dest.FullName,
+                    opt => opt.MapFrom(src => (src.Name ?? "") + " " + (src.Surname ?? "")));
         }
     }
 }

@@ -1,10 +1,11 @@
-﻿@page "/addabsence"
+﻿@page "/addtimeoff"
 @using Tutel.EduWork.BusinessLayer.Abstractions
 @using Tutel.EduWork.BusinessLayer.DTOs
 
 @inject NavigationManager NavigationManager
 @inject IVacationService vacationService
 @inject ISickLeaveService sickLeaveService
+@inject IUserService userService
 
 <h3>Dodaj odsutnost</h3>
 
@@ -39,8 +40,14 @@
             <label class="form-check-label">Teambuilding</label>
         </div>
         <div class="mb-3">
-            <label class="form-label">Korisnik (UserId)</label>
-            <InputText @bind-Value="vacation.UserId" class="form-control" />
+            <label class="form-label">Korisnik</label>
+            <select class="form-select" @bind="vacation.UserId">
+                <option value="">-- Odaberi korisnika --</option>
+                @foreach (var user in users)
+                {
+                    <option value="@user.Id">@user.FullName</option>
+                }
+            </select>
         </div>
 
         <button type="submit" class="btn btn-success">Spremi</button>
@@ -66,8 +73,14 @@ else if (selectedType == "sickleave")
             <InputText @bind-Value="sickLeave.Reason" class="form-control" />
         </div>
         <div class="mb-3">
-            <label class="form-label">Korisnik (UserId)</label>
-            <InputText @bind-Value="sickLeave.UserId" class="form-control" />
+            <label class="form-label">Korisnik</label>
+            <select class="form-select" @bind="sickLeave.UserId">
+                <option value="">-- Odaberi korisnika --</option>
+                @foreach (var user in users)
+                {
+                    <option value="@user.Id">@user.FullName</option>
+                }
+            </select>
         </div>
 
         <button type="submit" class="btn btn-success">Spremi</button>
@@ -85,6 +98,13 @@ else if (selectedType == "sickleave")
     private string message = "";
     private string alertClass = "";
 
+    private List<UserDTO> users = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await userService.GetAllAsync();
+    }
+
     private VacationDTO vacation = new VacationDTO
     {
         StartDate = DateOnly.FromDateTime(DateTime.Today),
@@ -101,6 +121,19 @@ else if (selectedType == "sickleave")
     {
         try
         {
+            if (vacation.StartDate > vacation.EndDate)
+            {
+                message = "Datum početka ne može biti nakon datuma kraja!";
+                alertClass = "alert-danger";
+                return;
+            }
+            if (string.IsNullOrEmpty(vacation.UserId))
+            {
+                message = "Morate odabrati korisnika!";
+                alertClass = "alert-danger";
+                return;
+            }
+
             await vacationService.AddAsync(vacation);
             message = "Godišnji odmor uspješno dodan!";
             alertClass = "alert-success";
@@ -110,7 +143,8 @@ else if (selectedType == "sickleave")
         }
         catch (Exception ex)
         {
-            message = $"Greška: {ex.Message}";
+            var inner = ex.InnerException != null ? ex.InnerException.Message : "";
+            message = $"Greška: {ex.Message} {inner}";
             alertClass = "alert-danger";
         }
     }
@@ -119,6 +153,19 @@ else if (selectedType == "sickleave")
     {
         try
         {
+            if (sickLeave.StartDate > sickLeave.EndDate)
+            {
+                message = "Datum početka ne može biti nakon datuma kraja!";
+                alertClass = "alert-danger";
+                return;
+            }
+            if (string.IsNullOrEmpty(sickLeave.UserId))
+            {
+                message = "Morate odabrati korisnika!";
+                alertClass = "alert-danger";
+                return;
+            }
+
             await sickLeaveService.AddAsync(sickLeave);
             message = "Bolovanje uspješno dodano!";
             alertClass = "alert-success";
@@ -128,7 +175,8 @@ else if (selectedType == "sickleave")
         }
         catch (Exception ex)
         {
-            message = $"Greška: {ex.Message}";
+            var inner = ex.InnerException != null ? ex.InnerException.Message : "";
+            message = $"Greška: {ex.Message} {inner}";
             alertClass = "alert-danger";
         }
     }
