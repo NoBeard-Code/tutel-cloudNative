@@ -1,8 +1,7 @@
-﻿@using Tutel.EduWork.BusinessLayer.Abstractions
-@using Tutel.EduWork.BusinessLayer.DTOs
-
-@inject IUserService userService
+﻿@inject IUserService userService
 @inject IProjectService projectService
+
+@inject NavigationManager NavigationManager
 
 <h3>Brzi pregled</h3>
 
@@ -10,7 +9,7 @@
     <div class="col-md-3 mb-4">
         <div class="card text-bg-light">
             <div class="card-body">
-                <h5 class="card-title">Ukupan broj korisnika</h5>
+                <h5 class="card-title">Ukupan broj zaposlenika</h5>
                 <p class="card-text display-6">@NumberOfUsers</p>
             </div>
         </div>
@@ -27,7 +26,7 @@
 
     <div class="col-md-3 mb-4">
         <div class="card text-bg-light">
-            <div class="card-body">
+            <div class="card-body" @onclick="() => NavigateToManageProjects()">
                 <h5 class="card-title">Broj aktivnih projekata</h5>
                 <p class="card-text display-6">@NumberOfActiveProjects</p>
             </div>
@@ -37,7 +36,7 @@
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-danger">
             <div class="card-body">
-                <h5 class="card-title">Broj korisnika bez unešenih sati</h5>
+                <h5 class="card-title">Broj zaposlenika bez unešenih sati</h5>
                 <p class="card-text display-6">TODO</p>
             </div>
         </div>
@@ -47,5 +46,10 @@
 @code {
     [Parameter] public int NumberOfUsers { get; set; }
     [Parameter] public int NumberOfActiveProjects { get; set; }
+
+    private void NavigateToManageProjects()
+    {
+        NavigationManager.NavigateTo("/timeonprojects");
+    }
 }
 

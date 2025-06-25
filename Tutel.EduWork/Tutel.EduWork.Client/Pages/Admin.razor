@@ -1,6 +1,4 @@
 ﻿@page "/admin"
-@using Tutel.EduWork.BusinessLayer.Abstractions
-@using Tutel.EduWork.BusinessLayer.DTOs
 @using Tutel.EduWork.Client.Components.Admin
 
 @inject IUserService userService;
@@ -15,7 +13,7 @@
 else
 {
     <AdminDashboard NumberOfUsers="numberOfUsers" NumberOfActiveProjects="numberOfActiveProjects" />
-    <AdminUserList Users="users" />
+    <AdminManageUsers Users="users" />
 }
 
 @code {
