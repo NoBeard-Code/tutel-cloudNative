@@ -1,15 +1,12 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Tutel.EduWork.BusinessLayer.Abstractions;
-using Tutel.EduWork.BusinessLayer.Services;
 using Tutel.EduWork.Components;
 using Tutel.EduWork.Components.Account;
 using Tutel.EduWork.Data;
 using Tutel.EduWork.DataAccessLayer;
-using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
 using Tutel.EduWork.DataAccessLayer.Entities;
-using Tutel.EduWork.DataAccessLayer.Repositories;
+using Tutel.EduWork.Extensions;
 
 namespace Tutel.EduWork
 {
@@ -49,32 +46,16 @@ namespace Tutel.EduWork
 
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-            #region MAPPER
-
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-            #endregion
-
             #region SERVICES
-
-            builder.Services.AddScoped<IProjectService, ProjectService>();
-            builder.Services.AddScoped<ISickLeaveService, SickLeaveService>();
-            builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IWorkSessionService, WorkSessionService>();
-            builder.Services.AddScoped<IWorkDayService, WorkDayService>();
-            builder.Services.AddScoped<IVacationService, VacationService>();
-
+            builder.Services.AddApplicationServices();
             #endregion
 
             #region REPOS
+            builder.Services.AddRepositories();
+            #endregion
 
-            builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
-            builder.Services.AddScoped<ISickLeaveRepository, SickLeaveRepository>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IVacationRepository, VacationRepository>();
-            builder.Services.AddScoped<IWorkDayRepository, WorkDayRepository>();
-            builder.Services.AddScoped<IWorkSessionRepository, WorkSessionRepository>();    
-
+            #region MAPPER
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             #endregion
 
             #region SEED
