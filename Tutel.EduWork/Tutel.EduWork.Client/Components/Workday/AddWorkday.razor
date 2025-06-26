@@ -10,7 +10,7 @@
                 <input class="form-control" type="time" @bind="workDay.WorkDayStart" />
             </div>
             <div class="col-lg-3 mb-2 mb-lg-0">
-                <input class="form-control" type="date" @bind="workDay.WorkDate" @oninput=CheckIfWorkDayExists />
+                <input class="form-control" type="date" value=@workDay.WorkDate.ToString("yyyy-MM-dd") @onchange=WorkDateChanged />
             </div>
             <div class="col-lg-auto">
                 <button type="submit" class="btn btn-primary" hidden=@workDayAlreadyExists>
@@ -25,10 +25,13 @@
         <div class="container mt-3 alert @messageClass">@message</div>
     }
 </EditForm>
+
 @inject IWorkDayService workDayService;
-@inject IUserService userService
 @code
 {
+    [Parameter]
+    public required string UserId { get; set; }
+
     private DateTime WorkDayStartTime;
     private DateTime SelectedDate;
 
@@ -49,9 +52,18 @@
         await CheckIfWorkDayExists();
     }
 
+    private async Task WorkDateChanged(ChangeEventArgs args)
+    {
+        if(args.Value != null && args.Value.ToString() != null)
+        {
+            workDay.WorkDate = DateOnly.Parse(args.Value.ToString() ?? DateTime.Now.ToString());
+            await CheckIfWorkDayExists();
+        }
+    }
+
     private async Task CheckIfWorkDayExists()
     {
-        if (await workDayService.GetByUserIdWorkDateAsync((await userService.GetAllAsync())[0].Id, workDay.WorkDate) == null)
+        if (await workDayService.GetByUserIdWorkDateAsync(UserId, workDay.WorkDate) == null)
         {
             messageClass = "alert-warning";
             message = $"Još niste unijeli radni dan za datum: {workDay.WorkDate}";
@@ -66,10 +78,7 @@
 
     private async Task HandleValidSubmit()
     {
-        workDay.UserId = (await userService.GetAllAsync())[0].Id;
-        Console.WriteLine(workDay.UserId);
-        Console.WriteLine(workDay.WorkDayStart);
-        Console.WriteLine(workDay.WorkDate);
+        workDay.UserId = UserId;
         try
         {
             await workDayService.AddAsync(workDay);
