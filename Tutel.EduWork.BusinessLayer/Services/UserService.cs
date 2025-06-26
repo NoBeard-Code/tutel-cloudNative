@@ -12,7 +12,6 @@ namespace Tutel.EduWork.BusinessLayer.Services
     {
         private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
-        private readonly ILogger<WorkSessionService> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<UserService> _logger;
@@ -20,9 +19,8 @@ namespace Tutel.EduWork.BusinessLayer.Services
         public UserService(
             IUserRepository userRepo,
             IMapper mapper,
-            ILogger<WorkSessionService> logger,
             UserManager<ApplicationUser> userManager,
-             RoleManager<IdentityRole> roleManager
+             RoleManager<IdentityRole> roleManager,
             ILogger<UserService> logger
         ) : base(userRepo, mapper, logger)
         {
