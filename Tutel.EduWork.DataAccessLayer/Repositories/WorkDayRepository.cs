@@ -52,5 +52,13 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
             return await Entities.FirstOrDefaultAsync(w =>
                 w.UserId == userId && w.WorkDate == workDate);
         }
+
+        public async Task<List<WorkDay>> GetWorkDaysInRangeAsync(DateOnly startDate, DateOnly endDate)
+        {
+            return await Entities
+                .Where(wd => wd.WorkDate >= startDate && wd.WorkDate <= endDate)
+                .ToListAsync();
+        }
+
     }
 }

@@ -37,7 +37,7 @@
         <div class="card text-white bg-danger">
             <div class="card-body">
                 <h5 class="card-title">Broj zaposlenika bez unešenih sati</h5>
-                <p class="card-text display-6">TODO</p>
+                <p class="card-text display-6">@LateLogIns.Count()</p>
             </div>
         </div>
     </div>
@@ -46,6 +46,7 @@
 @code {
     [Parameter] public int NumberOfUsers { get; set; }
     [Parameter] public int NumberOfActiveProjects { get; set; }
+    [Parameter] public List<string> LateLogIns { get; set; }
 
     private void NavigateToManageProjects()
     {

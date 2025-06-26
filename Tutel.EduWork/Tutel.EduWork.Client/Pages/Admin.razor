@@ -3,6 +3,7 @@
 
 @inject IUserService userService;
 @inject IProjectService projectService;
+@inject IWorkDayService workDayService;
 
 <PageTitle>Admin</PageTitle>
 
@@ -12,7 +13,7 @@
 }
 else
 {
-    <AdminDashboard NumberOfUsers="numberOfUsers" NumberOfActiveProjects="numberOfActiveProjects" />
+    <AdminDashboard NumberOfUsers="numberOfUsers" NumberOfActiveProjects="numberOfActiveProjects" LateLogIns="lateLogIns" />
     <AdminManageUsers Users="users" />
 }
 
@@ -20,6 +21,7 @@ else
     private List<UserDTO> users = new();
     private int numberOfUsers;
     private int numberOfActiveProjects;
+    private List<string> lateLogIns;
     private bool isLoaded;
 
     protected override async Task OnInitializedAsync()
@@ -29,6 +31,8 @@ else
 
         var projects = await projectService.GetAllActive(true);
         numberOfActiveProjects = projects.Count;
+
+        lateLogIns = await workDayService.GetUsersWithLateLogsIn();
 
         isLoaded = true;
     }

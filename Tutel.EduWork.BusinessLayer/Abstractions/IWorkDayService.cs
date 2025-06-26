@@ -8,5 +8,6 @@ namespace Tutel.EduWork.BusinessLayer.Abstractions
         Task<List<WorkDayDTO>> GetAllUserWorkDaysAsync(string userId);
         Task<WorkDayDTO?> GetByUserIdWorkDateAsync(string userId, DateOnly workDate);
         Task<List<WorkDayDTO>> GetAllUserWorkDaysStartAsync(string userId, TimeOnly startTime);
+        Task<List<string>> GetUsersWithLateLogsIn();
     }
 }

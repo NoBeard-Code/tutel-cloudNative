@@ -11,16 +11,19 @@ namespace Tutel.EduWork.BusinessLayer.Services
     public class WorkDayService : Service<WorkDay, WorkDayDTO>, IWorkDayService
     {
         private readonly IWorkDayRepository _workDayRepo;
+        private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
         private readonly ILogger<WorkSessionService> _logger;
 
         public WorkDayService(
             IWorkDayRepository workDayRepo,
+            IUserRepository userRepo,
             IMapper mapper,
             ILogger<WorkSessionService> logger
         ) : base(workDayRepo, mapper, logger)
         {
             _workDayRepo = workDayRepo;
+            _userRepo = userRepo;
             _mapper = mapper;
             _logger = logger;
         }
@@ -133,6 +136,34 @@ namespace Tutel.EduWork.BusinessLayer.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting all work days with userId: {UserId}, and work date: {WorkDate}", userId, workDate);
+                throw;
+            }
+        }
+
+        public async Task<List<string>> GetUsersWithLateLogsIn()
+        {
+            try
+            {
+                var today = DateOnly.FromDateTime(DateTime.Today);
+                var sevenDaysAgo = today.AddDays(-6);
+
+                var sevenDaysWorkDays = await _workDayRepo.GetWorkDaysInRangeAsync(sevenDaysAgo, today);
+                var activeUserIds = sevenDaysWorkDays
+                    .Select(wd => wd.UserId)
+                    .Distinct()
+                    .ToHashSet();
+
+                var allUsers = await _userRepo.GetAllAsync();
+                var allUserIds = allUsers.Select(u => u.Id).Distinct().ToList();
+
+                var inactiveUsers = allUserIds
+                    .Where(userId => !activeUserIds.Contains(userId))
+                    .ToList();
+
+                return inactiveUsers;
+            } 
+            catch (Exception ex)
+            {
                 throw;
             }
         }

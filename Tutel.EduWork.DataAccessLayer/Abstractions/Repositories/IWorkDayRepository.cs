@@ -8,5 +8,6 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
         Task<List<WorkDay>> GetAllUserWorkDaysAsync(string userId);
         Task<WorkDay?> GetByUserIdWorkDateAsync(string userId, DateOnly workDate);
         Task<List<WorkDay>> GetAllUserWorkDaysStartAsync(string userId, TimeOnly startTime);
+        Task<List<WorkDay>> GetWorkDaysInRangeAsync(DateOnly startDate, DateOnly endDate);
     }
 }
