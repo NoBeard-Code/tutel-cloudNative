@@ -40,8 +40,8 @@ namespace Tutel.EduWork.BusinessLayer.Services
         {
             try
             {
-                var users = await base.GetAllAsync();
-                return users;
+                var vacations = await _vacationRepo.GetAllWithUserAsync();
+                return _mapper.Map<List<VacationDTO>>(vacations);
             }
             catch (Exception ex)
             {

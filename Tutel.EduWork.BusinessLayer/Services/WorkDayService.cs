@@ -140,6 +140,24 @@ namespace Tutel.EduWork.BusinessLayer.Services
             }
         }
 
+        public async Task<List<WorkDayDTO>> GetAllUserWorkDaysBetweenDates(string userId, DateOnly startDate, DateOnly endDate)
+        {
+            try
+            {
+                if(startDate > endDate)
+                {
+                    throw new DateRangeStartAfterEndException("Početni datum je kasniji od završnog.");
+                }
+                var entities = await _workDayRepo.GetAllUserWorkDaysBetweenDates(userId, startDate, endDate);
+                return _mapper.Map<List<WorkDay>, List<WorkDayDTO>>(entities);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all work days with userId: {UserId}, start date: {startDate} and end date: {endDate}", userId, startDate, endDate);
+                throw;
+            }
+        }
+
         public async Task<List<string>> GetUsersWithLateLogsIn()
         {
             try

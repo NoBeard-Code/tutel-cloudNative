@@ -2,10 +2,11 @@
 {
     public class SickLeaveDTO
     {
-        public required int ID { get; set; }
+        public int Id { get; set; }
         public required DateOnly StartDate { get; set; }
         public required DateOnly EndDate { get; set; }
         public string? Reason { get; set; }
-        public required string UserID { get; set; }
+        public string UserId { get; set; }
+        public string? FullName { get; set; }
     }
 }

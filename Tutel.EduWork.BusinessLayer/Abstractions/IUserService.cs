@@ -14,5 +14,6 @@ namespace Tutel.EduWork.BusinessLayer.Abstractions
         Task<bool> ChangeUserLockouStateAsync(string userId, bool state);
         Task AddRoleToUserAsync(string userId, string roleName);
         Task RemoveRoleFromUserAsync(string userId, string roleName);
+        Task<List<UserDTO>> GetUsersByProject(int projectId);
     }
 }

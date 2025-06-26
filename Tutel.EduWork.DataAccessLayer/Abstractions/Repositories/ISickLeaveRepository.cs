@@ -8,5 +8,6 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
         Task<List<SickLeave>> GetAllUserSickLeavesAsync(string userId);
         Task<List<SickLeave>> GetByStartDateAsync(DateOnly startDate);
         Task<List<SickLeave>> GetByEndDateAsync(DateOnly endDate);
+        Task<List<SickLeave>> GetAllWithUserAsync();
     }
 }

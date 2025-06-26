@@ -1,0 +1,239 @@
+﻿@using Tutel.EduWork.BusinessLayer.Abstractions
+@using Tutel.EduWork.BusinessLayer.DTOs
+
+@inject NavigationManager NavigationManager
+@inject IVacationService vacationService
+@inject ISickLeaveService sickLeaveService
+
+<button class="btn btn-success mb-3" @onclick="NavigateToAddPage">Dodaj odsutnost</button>
+
+<h3>Prikaz odsutnosti</h3>
+
+@if (vacations == null || sickLeaves == null)
+{
+    <p><em>Učitavanje...</em></p>
+}
+else
+{
+    <div class="mb-3">
+        <label for="absenceFilter" class="form-label me-2">Prikaži:</label>
+        <select id="absenceFilter" class="form-select d-inline-block w-auto"
+                @bind="SelectedType">
+            <option value="all">Sve odsutnosti</option>
+            <option value="vacation">Godišnji odmori</option>
+            <option value="sickleave">Bolovanja</option>
+        </select>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Korisnik</th>
+                <th>Vrsta</th>
+                <th>Početak</th>
+                <th>Kraj</th>
+                <th>Broj dana</th>
+                <th>Razlog / Teambuilding</th>
+                <th>Akcije</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var absence in filteredAbsences)
+            {
+                <tr>
+                    <td>@absence.FullName</td>
+                    <td>@absence.Type</td>
+                    <td>@absence.StartDate.ToShortDateString()</td>
+                    <td>@absence.EndDate.ToShortDateString()</td>
+                    <td>@absence.Days</td>
+                    <td>@absence.Details</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => EditAbsence(absence)">Uredi</button>
+                        <button class="btn btn-danger" @onclick="() => ShowDeleteDialog(absence)">Obriši</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    @if (showConfirmDialog && absenceToDelete != null)
+    {
+        <div class="modal-backdrop fade show"></div>
+        <div class="modal d-block" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Potvrda brisanja</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>Jeste li sigurni da želite obrisati ovu odsutnost za korisnika <strong>@absenceToDelete.FullName</strong> od <strong>@absenceToDelete.StartDate.ToShortDateString()</strong> do <strong>@absenceToDelete.EndDate.ToShortDateString()</strong>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" @onclick="CancelDelete">Odustani</button>
+                        <button class="btn btn-danger" @onclick="ConfirmDelete">Obriši</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private List<VacationDTO> vacations;
+    private List<SickLeaveDTO> sickLeaves;
+    private List<AbsenceViewModel> filteredAbsences = new();
+    private string? errorMessage;
+    private bool showConfirmDialog = false;
+    private AbsenceViewModel? absenceToDelete;
+
+    private string _selectedType = "all";
+    private string SelectedType
+    {
+        get => _selectedType;
+        set
+        {
+            if (_selectedType != value)
+            {
+                _selectedType = value;
+                FilterAbsences();
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        vacations = await vacationService.GetAllAsync();
+        sickLeaves = await sickLeaveService.GetAllAsync();
+        FilterAbsences();
+    }
+
+    private void FilterAbsences()
+    {
+        var allAbsences = new List<AbsenceViewModel>();
+
+        if (SelectedType == "all" || SelectedType == "vacation")
+        {
+            allAbsences.AddRange(vacations.Select(v => new AbsenceViewModel
+            {
+                Id = v.Id,
+                FullName = v.FullName ?? v.UserId,
+                Type = "Godišnji",
+                StartDate = v.StartDate,
+                EndDate = v.EndDate,
+                Days = (v.EndDate.ToDateTime(TimeOnly.MinValue) - v.StartDate.ToDateTime(TimeOnly.MinValue)).Days + 1,
+                Details = v.IsTeamBuilding ? "Teambuilding" : "",
+                IsVacation = true
+            }));
+        }
+
+        if (SelectedType == "all" || SelectedType == "sickleave")
+        {
+            allAbsences.AddRange(sickLeaves.Select(s => new AbsenceViewModel
+            {
+                Id = s.Id,
+                FullName = s.FullName ?? s.UserId,
+                Type = "Bolovanje",
+                StartDate = s.StartDate,
+                EndDate = s.EndDate,
+                Days = (s.EndDate.ToDateTime(TimeOnly.MinValue) - s.StartDate.ToDateTime(TimeOnly.MinValue)).Days + 1,
+                Details = s.Reason ?? "",
+                IsVacation = false
+            }));
+        }
+
+        filteredAbsences = allAbsences
+            .OrderByDescending(a => a.StartDate)
+            .ToList();
+    }
+
+    private void NavigateToAddPage()
+    {
+        NavigationManager.NavigateTo("/addtimeoff");
+    }
+
+    private void EditAbsence(AbsenceViewModel absence)
+    {
+        if (absence.IsVacation)
+            NavigationManager.NavigateTo($"/editvacation/{absence.Id}");
+        else
+            NavigationManager.NavigateTo($"/editsickleave/{absence.Id}");
+    }
+
+    private async Task RemoveAbsence(AbsenceViewModel absence)
+    {
+        try
+        {
+            if (absence == null)
+                return;
+
+            if (absence.IsVacation)
+            {
+                if (vacations == null)
+                    return;
+
+                var vacation = vacations.FirstOrDefault(v => v.Id == absence.Id);
+                if (vacation != null)
+                {
+                    await vacationService.RemoveAsync(vacation);
+                    vacations = await vacationService.GetAllAsync();
+                }
+            }
+            else
+            {
+                if (sickLeaves == null)
+                    return;
+
+                var sickLeave = sickLeaves.FirstOrDefault(s => s.Id == absence.Id);
+                if (sickLeave != null)
+                {
+                    await sickLeaveService.RemoveAsync(sickLeave);
+                    sickLeaves = await sickLeaveService.GetAllAsync();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Greška prilikom brisanja: {ex.Message}";
+        }
+        FilterAbsences();
+        StateHasChanged();
+    }
+
+    private void ShowDeleteDialog(AbsenceViewModel absence)
+    {
+        absenceToDelete = absence;
+        showConfirmDialog = true;
+    }
+
+    private void CancelDelete()
+    {
+        showConfirmDialog = false;
+        absenceToDelete = null;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (absenceToDelete != null)
+        {
+            await RemoveAbsence(absenceToDelete);
+        }
+        showConfirmDialog = false;
+        absenceToDelete = null;
+    }
+
+    private class AbsenceViewModel
+    {
+        public int Id { get; set; }
+        public string FullName { get; set; }
+        public string Type { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+        public int Days { get; set; }
+        public string Details { get; set; }
+        public bool IsVacation { get; set; }
+    }
+}

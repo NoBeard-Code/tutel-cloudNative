@@ -45,5 +45,11 @@ namespace Tutel.EduWork.BusinessLayer.Services
             var entities = await _projectRepo.GetByBillableAsync(isBillable);
             return _mapper.Map<List<Project>, List<ProjectDTO>>(entities);
         }
+
+        public async Task<List<ProjectDTO>> GetAllProjectsByUser(string userId)
+        {
+            var entities = await _projectRepo.GetAllUserProjectsAsync(userId);
+            return _mapper.Map<List<Project>, List<ProjectDTO>>(entities);
+        }
     }
 }

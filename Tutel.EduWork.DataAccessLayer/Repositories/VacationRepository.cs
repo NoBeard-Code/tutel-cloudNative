@@ -14,6 +14,12 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
             return await GetAllAsync();
         }
 
+        public async Task<List<Vacation>> GetAllWithUserAsync()
+        {
+            return await Entities.Include(v => v.User)
+                .ToListAsync();
+        }
+
         public async Task AddVacationAsync(Vacation vacation)
         {
             await AddAsync(vacation);

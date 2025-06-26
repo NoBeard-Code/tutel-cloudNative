@@ -9,5 +9,6 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
         Task<List<Vacation>> GetByStartDateAsync(DateOnly startDate);
         Task<List<Vacation>> GetByEndDateAsync(DateOnly endDate);
         Task<List<Vacation>> GetByTeambuildingAsync(bool teambuilding);
+        Task<List<Vacation>> GetAllWithUserAsync();
     }
 }

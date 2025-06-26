@@ -15,6 +15,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         private readonly ILogger<WorkSessionService> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogger<UserService> _logger;
 
         public UserService(
             IUserRepository userRepo,
@@ -22,6 +23,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
             ILogger<WorkSessionService> logger,
             UserManager<ApplicationUser> userManager,
              RoleManager<IdentityRole> roleManager
+            ILogger<UserService> logger
         ) : base(userRepo, mapper, logger)
         {
             _userRepo = userRepo;
@@ -228,6 +230,12 @@ namespace Tutel.EduWork.BusinessLayer.Services
             {
                 var result = await _userManager.RemoveFromRoleAsync(user, roleName);
             }
+        }
+
+        public async Task<List<UserDTO>> GetUsersByProject(int projectId)
+        {
+            var entities = await _userRepo.GetAllUsersOnProject(projectId);
+            return _mapper.Map<List<ApplicationUser>, List<UserDTO>>(entities);
         }
     }
 }
