@@ -58,13 +58,39 @@ else
             <button class="btn btn-primary me-2" @onclick="OpenCreateRoleModal">Kreiraj novu ulogu</button>
             @if (!user.LockoutEnabled)
             {
-                <button class="btn btn-danger me-2" @onclick="() => ChangeUserLockouState(user.Id, true)">Deaktiviraj korisnika</button>
+                <button class="btn btn-danger me-2" @onclick="() => PromptLockoutChange(true)">Deaktiviraj korisnika</button>
             }
             else
             {
-                <button class="btn btn-success me-2" @onclick="() => ChangeUserLockouState(user.Id, false)">Aktiviraj korisnika</button>
+                <button class="btn btn-success me-2" @onclick="() => PromptLockoutChange(false)">Aktiviraj korisnika</button>
             }
+        </div>
+    </div>
+}
 
+@if (showLockoutConfirmDialog)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Potvrda akcije</h5>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Jeste li sigurni da želite
+                        @(newLockoutState ? "deaktivirati" : "aktivirati")
+                        korisnika <strong>@user.FullName</strong>?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CancelLockoutChange">Odustani</button>
+                    <button class="btn @(newLockoutState ? "btn-danger" : "btn-success")" @onclick="ConfirmLockoutChange">
+                        @(newLockoutState ? "Deaktiviraj" : "Aktiviraj")
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 }
@@ -102,6 +128,9 @@ else
     private string selectedRole;
     private bool showCreateRoleModal = false;
     private string newRoleName;
+    private bool showLockoutConfirmDialog = false;
+    private bool newLockoutState;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,6 +183,23 @@ else
         await userService.ChangeUserLockouStateAsync(userId, state);
         user = await userService.GetUserAsync(userId);
         StateHasChanged();
+    }
+
+    private void PromptLockoutChange(bool state)
+    {
+        newLockoutState = state;
+        showLockoutConfirmDialog = true;
+    }
+
+    private void CancelLockoutChange()
+    {
+        showLockoutConfirmDialog = false;
+    }
+
+    private async Task ConfirmLockoutChange()
+    {
+        await ChangeUserLockouState(user.Id, newLockoutState);
+        showLockoutConfirmDialog = false;
     }
 
 }
