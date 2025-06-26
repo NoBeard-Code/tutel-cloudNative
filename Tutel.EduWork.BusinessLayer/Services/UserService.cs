@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 using Tutel.EduWork.BusinessLayer.Abstractions;
 using Tutel.EduWork.BusinessLayer.DTOs;
 using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
@@ -11,17 +13,20 @@ namespace Tutel.EduWork.BusinessLayer.Services
     {
         private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<WorkSessionService> _logger;
 
         public UserService(
             IUserRepository userRepo,
             IMapper mapper,
-            ILogger<WorkSessionService> logger
+            ILogger<WorkSessionService> logger,
+            UserManager<ApplicationUser> userMananger
         ) : base(userRepo, mapper, logger)
         {
             _userRepo = userRepo;
             _mapper = mapper;
             _logger = logger;
+            _userManager = userMananger;
         }
 
         public async Task AddUserAsync(UserDTO entity)
@@ -132,6 +137,19 @@ namespace Tutel.EduWork.BusinessLayer.Services
                 _logger.LogError(ex, "Error getting user with id: {Id}", id);
                 throw;
             }
+        }
+
+        public async Task<string?> GetUserIdFromClaim(ClaimsPrincipal claim)
+        {
+            if (claim.Identity != null && claim.Identity.IsAuthenticated)
+            {
+                ApplicationUser? user = await _userManager.GetUserAsync(claim);
+                if (user != null)
+                {
+                    return await _userManager.GetUserIdAsync(user);
+                }
+            }
+            return null;
         }
 
         public async Task RemoveUserAsync(UserDTO entity)

@@ -1,4 +1,5 @@
-﻿using Tutel.EduWork.BusinessLayer.DTOs;
+﻿using System.Security.Claims;
+using Tutel.EduWork.BusinessLayer.DTOs;
 
 namespace Tutel.EduWork.BusinessLayer.Abstractions
 {
@@ -10,5 +11,6 @@ namespace Tutel.EduWork.BusinessLayer.Abstractions
         Task<UserDTO?> GetBySurnameAsync(string surname);
         Task<string?> GetRoleAsync(string userId);
         Task<List<UserDTO>> GetAllByRoleAsync(string role);
+        Task<string?> GetUserIdFromClaim(ClaimsPrincipal claim);
     }
 }
