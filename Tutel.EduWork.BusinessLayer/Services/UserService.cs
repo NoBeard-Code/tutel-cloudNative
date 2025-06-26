@@ -167,6 +167,35 @@ namespace Tutel.EduWork.BusinessLayer.Services
             }
         }
 
+        public async Task<bool> ChangeUserLockouStateAsync(string userId, bool state)
+        {
+            try
+            {
+                var user = await _userRepo.GetByIdAsync(userId);
+                if (user != null)
+                {
+                    if (state)
+                    {
+                        user.LockoutEnabled = true;
+                        user.LockoutEnd = DateTime.Now.AddYears(100);
+                        await _userRepo.UpdateAsync(user);
+                        return true;
+                    } else {
+                        user.LockoutEnabled = false;
+                        user.LockoutEnd = null;
+                        await _userRepo.UpdateAsync(user);
+                        return true;
+                    }                    
+                }
+                return false;
+            } 
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deactivating user with id: {id}", userId);
+                return false;
+            }
+        }
+
         public async Task<List<string>> GetUserRolesAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -200,6 +229,5 @@ namespace Tutel.EduWork.BusinessLayer.Services
                 var result = await _userManager.RemoveFromRoleAsync(user, roleName);
             }
         }
-
     }
 }
