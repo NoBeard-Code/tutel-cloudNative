@@ -13,6 +13,6 @@ namespace Tutel.EduWork.BusinessLayer.DTOs
         public List<Vacation> Vacations { get; } = new();
         public List<WorkDay> WorkDays { get; } = new();
         public List<UserProject> UserProjects { get; } = new();
-
+        public string FullName { get; set; }
     }
 }

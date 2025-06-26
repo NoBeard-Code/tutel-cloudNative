@@ -29,6 +29,20 @@ namespace Tutel.EduWork.BusinessLayer.Services
             return _mapper.Map<SickLeaveDTO>(await _sickLeaveRepo.GetByIdAsync(id));
         }
 
+        public async Task<List<SickLeaveDTO>> GetAllAsync()
+        {
+            try
+            {
+                var sickLeaves = await _sickLeaveRepo.GetAllWithUserAsync();
+                return _mapper.Map<List<SickLeaveDTO>>(sickLeaves);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all SickLeaves");
+                throw;
+            }
+        }
+
         public async Task<SickLeaveDTO> AddSickLeaveToUser(SickLeaveDTO sickLeave)
         {
             await base.AddAsync(sickLeave);

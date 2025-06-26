@@ -25,6 +25,20 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
             Context.Entry(entity).State = EntityState.Modified;
             await Context.SaveChangesAsync();
         }
+
+        public async Task RemoveAsync(T entity)
+        {
+            var local = Entities.Local.FirstOrDefault(e => e.Id == entity.Id);
+            if (local != null)
+            {
+                Context.Entry(local).State = EntityState.Detached;
+            }
+
+            Entities.Attach(entity);
+            Entities.Remove(entity);
+            await Context.SaveChangesAsync();
+        }
+
     }
 
 }
