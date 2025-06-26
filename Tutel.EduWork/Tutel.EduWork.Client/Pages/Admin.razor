@@ -1,0 +1,39 @@
+﻿@page "/admin"
+@using Tutel.EduWork.Client.Components.Admin
+
+@inject IUserService userService;
+@inject IProjectService projectService;
+@inject IWorkDayService workDayService;
+
+<PageTitle>Admin</PageTitle>
+
+@if (!isLoaded)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <AdminDashboard NumberOfUsers="numberOfUsers" NumberOfActiveProjects="numberOfActiveProjects" LateLogIns="lateLogIns" />
+    <AdminManageUsers Users="users" />
+}
+
+@code {
+    private List<UserDTO> users = new();
+    private int numberOfUsers;
+    private int numberOfActiveProjects;
+    private List<string> lateLogIns;
+    private bool isLoaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await userService.GetAllAsync();
+        numberOfUsers = users.Count;
+
+        var projects = await projectService.GetAllActive(true);
+        numberOfActiveProjects = projects.Count;
+
+        lateLogIns = await workDayService.GetUsersWithLateLogsIn();
+
+        isLoaded = true;
+    }
+}

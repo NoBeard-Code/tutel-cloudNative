@@ -1,0 +1,206 @@
+﻿@page "/manageuser/{UserId}"
+@using Microsoft.AspNetCore.Identity
+
+@inject NavigationManager NavigationManager
+@inject IRoleService roleService
+@inject IUserService userService
+
+<h3 class="mb-4">Detalji zaposlenika</h3>
+
+@if (user == null || roles == null || allRoles == null)
+{
+    <div class="alert alert-info">Učitavanje podataka...</div>
+}
+else
+{
+    <div class="card mb-4 shadow-sm" style="max-width: 40rem;">
+        <div class="card-body">
+            <h5 class="card-title">@user.Name @user.Surname</h5>
+            <h6 class="card-subtitle mb-3 text-muted">@user.Email</h6>
+
+            <div class="mb-4">
+                <strong>Uloge:</strong>
+                <div class="mt-2 d-flex flex-wrap">
+                    @if (roles.Count == 0)
+                    {
+                        <span class="text-muted"><em>Korisnik nema dodijeljene uloge.</em></span>
+                    }
+                    else
+                    {
+                        @foreach (var role in roles)
+                        {
+                            <span class="badge bg-primary d-flex align-items-center me-2 mb-2">
+                                @role
+                                <i class="bi bi-x-circle-fill ms-2 text-white"
+                                   style="cursor: pointer;"
+                                   title="Ukloni ulogu"
+                                   @onclick="() => RemoveRole(role)">
+                                </i>
+                            </span>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="input-group mb-4" style="max-width: 25rem;">
+                <select class="form-select" @bind="selectedRole">
+                    <option value="">-- Odaberi ulogu za dodavanje --</option>
+                    @foreach (var r in allRoles.Where(r => !roles.Contains(r.Name)))
+                    {
+                        <option value="@r.Name">@r.Name</option>
+                    }
+                </select>
+                <button class="btn btn-success" @onclick="AddRole" disabled="@string.IsNullOrEmpty(selectedRole)">
+                    Dodaj ulogu
+                </button>
+            </div>
+
+            <button class="btn btn-primary me-2" @onclick="OpenCreateRoleModal">Kreiraj novu ulogu</button>
+            @if (!user.LockoutEnabled)
+            {
+                <button class="btn btn-danger me-2" @onclick="() => PromptLockoutChange(true)">Deaktiviraj korisnika</button>
+            }
+            else
+            {
+                <button class="btn btn-success me-2" @onclick="() => PromptLockoutChange(false)">Aktiviraj korisnika</button>
+            }
+        </div>
+    </div>
+}
+
+@if (showLockoutConfirmDialog)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Potvrda akcije</h5>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Jeste li sigurni da želite
+                        @(newLockoutState ? "deaktivirati" : "aktivirati")
+                        korisnika <strong>@user.FullName</strong>?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CancelLockoutChange">Odustani</button>
+                    <button class="btn @(newLockoutState ? "btn-danger" : "btn-success")" @onclick="ConfirmLockoutChange">
+                        @(newLockoutState ? "Deaktiviraj" : "Aktiviraj")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@if (showCreateRoleModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Kreiraj novu ulogu</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseCreateRoleModal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" placeholder="Ime uloge" @bind="newRoleName" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseCreateRoleModal">Zatvori</button>
+                    <button class="btn btn-primary" @onclick="CreateRole" disabled="@string.IsNullOrWhiteSpace(newRoleName)">Spremi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+
+    private UserDTO user;
+    private List<string> roles = new();
+    private List<IdentityRole> allRoles = new();
+
+    private string selectedRole;
+    private bool showCreateRoleModal = false;
+    private string newRoleName;
+    private bool showLockoutConfirmDialog = false;
+    private bool newLockoutState;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await userService.GetUserAsync(UserId);
+        roles = (await userService.GetUserRolesAsync(UserId)).ToList();
+        allRoles = (await roleService.GetAllRolesAsync()).ToList();
+    }
+
+    private async Task AddRole()
+    {
+        if (!string.IsNullOrEmpty(selectedRole))
+        {
+            await userService.AddRoleToUserAsync(UserId, selectedRole);
+            roles.Add(selectedRole);
+            selectedRole = string.Empty;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RemoveRole(string role)
+    {
+        await userService.RemoveRoleFromUserAsync(UserId, role);
+        roles = (await userService.GetUserRolesAsync(UserId)).ToList();
+        StateHasChanged();
+    }
+
+    private void OpenCreateRoleModal()
+    {
+        newRoleName = string.Empty;
+        showCreateRoleModal = true;
+    }
+
+    private void CloseCreateRoleModal()
+    {
+        showCreateRoleModal = false;
+    }
+
+    private async Task CreateRole()
+    {
+        if (!string.IsNullOrWhiteSpace(newRoleName))
+        {
+            await roleService.CreateRoleAsync(newRoleName);
+            allRoles.Add(new IdentityRole(newRoleName));
+            showCreateRoleModal = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ChangeUserLockoutState(string userId, bool state)
+    {
+        await userService.ChangeUserLockoutStateAsync(userId, state);
+        user = await userService.GetUserAsync(userId);
+        StateHasChanged();
+    }
+
+    private void PromptLockoutChange(bool state)
+    {
+        newLockoutState = state;
+        showLockoutConfirmDialog = true;
+    }
+
+    private void CancelLockoutChange()
+    {
+        showLockoutConfirmDialog = false;
+    }
+
+    private async Task ConfirmLockoutChange()
+    {
+        await ChangeUserLockoutState(user.Id, newLockoutState);
+        showLockoutConfirmDialog = false;
+    }
+
+}
