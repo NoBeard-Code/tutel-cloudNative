@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
 @using Tutel.EduWork.BusinessLayer.Abstractions
 @using Tutel.EduWork.BusinessLayer.DTOs
 @using Tutel.EduWork.BusinessLayer.Exceptions
@@ -16,7 +17,6 @@
     </NotAuthorized>
 </AuthorizeView>
 
-@inject IUserService userService;
 @inject AuthenticationStateProvider authenticationStateProvider;
 @code
 {
@@ -35,6 +35,6 @@
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        userId = await userService.GetUserIdFromClaim(user);
+        userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 }

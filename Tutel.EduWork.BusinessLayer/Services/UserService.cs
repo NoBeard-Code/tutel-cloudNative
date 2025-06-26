@@ -14,35 +14,22 @@ namespace Tutel.EduWork.BusinessLayer.Services
         private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
-<<<<<<< 27-dohvaćanje-korisnika-iz-sesije-tijekom-dodavanja-radnog-dana
-        private readonly ILogger<WorkSessionService> _logger;
-=======
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<UserService> _logger;
->>>>>>> main
 
         public UserService(
             IUserRepository userRepo,
             IMapper mapper,
-<<<<<<< 27-dohvaćanje-korisnika-iz-sesije-tijekom-dodavanja-radnog-dana
-            ILogger<WorkSessionService> logger,
-            UserManager<ApplicationUser> userMananger
-=======
-            UserManager<ApplicationUser> userManager,
+            UserManager<ApplicationUser> userMananger,
              RoleManager<IdentityRole> roleManager,
             ILogger<UserService> logger
->>>>>>> main
         ) : base(userRepo, mapper, logger)
         {
             _userRepo = userRepo;
             _mapper = mapper;
             _logger = logger;
-<<<<<<< 27-dohvaćanje-korisnika-iz-sesije-tijekom-dodavanja-radnog-dana
             _userManager = userMananger;
-=======
-            _userManager = userManager;
             _roleManager = roleManager;
->>>>>>> main
         }
 
         public async Task AddUserAsync(UserDTO entity)
@@ -153,19 +140,6 @@ namespace Tutel.EduWork.BusinessLayer.Services
                 _logger.LogError(ex, "Error getting user with id: {Id}", id);
                 throw;
             }
-        }
-
-        public async Task<string?> GetUserIdFromClaim(ClaimsPrincipal claim)
-        {
-            if (claim.Identity != null && claim.Identity.IsAuthenticated)
-            {
-                ApplicationUser? user = await _userManager.GetUserAsync(claim);
-                if (user != null)
-                {
-                    return await _userManager.GetUserIdAsync(user);
-                }
-            }
-            return null;
         }
 
         public async Task RemoveUserAsync(UserDTO entity)
