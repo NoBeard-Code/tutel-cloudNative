@@ -167,7 +167,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
             }
         }
 
-        public async Task<bool> ChangeUserLockouStateAsync(string userId, bool state)
+        public async Task<bool> ChangeUserLockoutStateAsync(string userId, bool state)
         {
             try
             {

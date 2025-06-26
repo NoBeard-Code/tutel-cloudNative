@@ -153,6 +153,7 @@ else
     private async Task RemoveRole(string role)
     {
         await userService.RemoveRoleFromUserAsync(UserId, role);
+        roles = (await userService.GetUserRolesAsync(UserId)).ToList();
         StateHasChanged();
     }
 
@@ -178,9 +179,9 @@ else
         }
     }
 
-    private async Task ChangeUserLockouState(string userId, bool state)
+    private async Task ChangeUserLockoutState(string userId, bool state)
     {
-        await userService.ChangeUserLockouStateAsync(userId, state);
+        await userService.ChangeUserLockoutStateAsync(userId, state);
         user = await userService.GetUserAsync(userId);
         StateHasChanged();
     }
@@ -198,7 +199,7 @@ else
 
     private async Task ConfirmLockoutChange()
     {
-        await ChangeUserLockouState(user.Id, newLockoutState);
+        await ChangeUserLockoutState(user.Id, newLockoutState);
         showLockoutConfirmDialog = false;
     }
 
