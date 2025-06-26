@@ -11,12 +11,12 @@ namespace Tutel.EduWork.BusinessLayer.Services
     {
         private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
-        private readonly ILogger<WorkSessionService> _logger;
+        private readonly ILogger<UserService> _logger;
 
         public UserService(
             IUserRepository userRepo,
             IMapper mapper,
-            ILogger<WorkSessionService> logger
+            ILogger<UserService> logger
         ) : base(userRepo, mapper, logger)
         {
             _userRepo = userRepo;
@@ -158,6 +158,12 @@ namespace Tutel.EduWork.BusinessLayer.Services
                 _logger.LogError(ex, "Error updating user with id: {id}", entity.Id);
                 throw;
             }
+        }
+
+        public async Task<List<UserDTO>> GetUsersByProject(int projectId)
+        {
+            var entities = await _userRepo.GetAllUsersOnProject(projectId);
+            return _mapper.Map<List<ApplicationUser>, List<UserDTO>>(entities);
         }
     }
 }
