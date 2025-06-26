@@ -24,6 +24,9 @@ namespace Tutel.EduWork.DataAccessLayer
             _context.WorkSessionTypes.RemoveRange(_context.WorkSessionTypes);
             _context.Users.RemoveRange(_context.Users);
 
+            _context.Roles.RemoveRange(_context.Roles);
+            _context.UserRoles.RemoveRange(_context.UserRoles);
+
             _context.SaveChanges();
         }
 

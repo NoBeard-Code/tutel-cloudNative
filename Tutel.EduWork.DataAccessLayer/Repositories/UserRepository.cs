@@ -71,5 +71,12 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
         {
             return await Entities.FirstOrDefaultAsync(u => u.Name == userName);
         }
+
+        public async Task<List<ApplicationUser>> GetAllUsersOnProject(int projectId)
+        {
+            return await Entities.Include(u => u.UserProjects)
+                .Where(u => u.UserProjects.Any(up => up.ProjectId == projectId))
+                .ToListAsync();
+        }
     }
 }

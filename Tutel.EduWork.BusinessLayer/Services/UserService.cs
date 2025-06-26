@@ -14,19 +14,35 @@ namespace Tutel.EduWork.BusinessLayer.Services
         private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
+<<<<<<< 27-dohvaćanje-korisnika-iz-sesije-tijekom-dodavanja-radnog-dana
         private readonly ILogger<WorkSessionService> _logger;
+=======
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogger<UserService> _logger;
+>>>>>>> main
 
         public UserService(
             IUserRepository userRepo,
             IMapper mapper,
+<<<<<<< 27-dohvaćanje-korisnika-iz-sesije-tijekom-dodavanja-radnog-dana
             ILogger<WorkSessionService> logger,
             UserManager<ApplicationUser> userMananger
+=======
+            UserManager<ApplicationUser> userManager,
+             RoleManager<IdentityRole> roleManager,
+            ILogger<UserService> logger
+>>>>>>> main
         ) : base(userRepo, mapper, logger)
         {
             _userRepo = userRepo;
             _mapper = mapper;
             _logger = logger;
+<<<<<<< 27-dohvaćanje-korisnika-iz-sesije-tijekom-dodavanja-radnog-dana
             _userManager = userMananger;
+=======
+            _userManager = userManager;
+            _roleManager = roleManager;
+>>>>>>> main
         }
 
         public async Task AddUserAsync(UserDTO entity)
@@ -176,6 +192,75 @@ namespace Tutel.EduWork.BusinessLayer.Services
                 _logger.LogError(ex, "Error updating user with id: {id}", entity.Id);
                 throw;
             }
+        }
+
+        public async Task<bool> ChangeUserLockoutStateAsync(string userId, bool state)
+        {
+            try
+            {
+                var user = await _userRepo.GetByIdAsync(userId);
+                if (user != null)
+                {
+                    if (state)
+                    {
+                        user.LockoutEnabled = true;
+                        user.LockoutEnd = DateTime.Now.AddYears(100);
+                        await _userRepo.UpdateAsync(user);
+                        return true;
+                    } else {
+                        user.LockoutEnabled = false;
+                        user.LockoutEnd = null;
+                        await _userRepo.UpdateAsync(user);
+                        return true;
+                    }                    
+                }
+                return false;
+            } 
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deactivating user with id: {id}", userId);
+                return false;
+            }
+        }
+
+        public async Task<List<string>> GetUserRolesAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return new List<string>();
+
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
+        }
+
+        public async Task AddRoleToUserAsync(string userId, string roleName)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var roleExists = await _roleManager.RoleExistsAsync(roleName);
+
+            var isInRole = await _userManager.IsInRoleAsync(user, roleName);
+            if (!isInRole)
+            {
+                var result = await _userManager.AddToRoleAsync(user, roleName);
+            }
+        }
+
+        public async Task RemoveRoleFromUserAsync(string userId, string roleName)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var isInRole = await _userManager.IsInRoleAsync(user, roleName);
+            if (isInRole)
+            {
+                var result = await _userManager.RemoveFromRoleAsync(user, roleName);
+            }
+        }
+
+        public async Task<List<UserDTO>> GetUsersByProject(int projectId)
+        {
+            var entities = await _userRepo.GetAllUsersOnProject(projectId);
+            return _mapper.Map<List<ApplicationUser>, List<UserDTO>>(entities);
         }
     }
 }

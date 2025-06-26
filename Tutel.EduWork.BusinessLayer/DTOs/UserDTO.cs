@@ -9,6 +9,7 @@ namespace Tutel.EduWork.BusinessLayer.DTOs
         public string Surname { get; set; }
         public string Position { get; set; }
         public string Email { get; set; }
+        public bool LockoutEnabled;
         public List<SickLeave> SickLeaves { get; } = new();
         public List<Vacation> Vacations { get; } = new();
         public List<WorkDay> WorkDays { get; } = new();

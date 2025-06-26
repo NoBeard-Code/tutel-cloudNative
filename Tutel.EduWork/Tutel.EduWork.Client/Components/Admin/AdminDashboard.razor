@@ -1,0 +1,56 @@
+﻿@inject IUserService userService
+@inject IProjectService projectService
+
+@inject NavigationManager NavigationManager
+
+<h3>Brzi pregled</h3>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card text-bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Ukupan broj zaposlenika</h5>
+                <p class="card-text display-6">@NumberOfUsers</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card text-bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Broj unesenih sati</h5>
+                <p class="card-text display-6">TODO</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card text-bg-light">
+            <div class="card-body" @onclick="() => NavigateToManageProjects()">
+                <h5 class="card-title">Broj aktivnih projekata</h5>
+                <p class="card-text display-6">@NumberOfActiveProjects</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">Kašnjenja u unosu radnih dana</h5>
+                <p class="card-text display-6">@LateLogIns.Count()</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int NumberOfUsers { get; set; }
+    [Parameter] public int NumberOfActiveProjects { get; set; }
+    [Parameter] public List<string> LateLogIns { get; set; }
+
+    private void NavigateToManageProjects()
+    {
+        NavigationManager.NavigateTo("/timeonprojects");
+    }
+}
+

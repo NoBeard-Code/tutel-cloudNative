@@ -1,0 +1,74 @@
+﻿@page "/timeonprojects"
+
+@inject IUserService userService
+@inject IProjectService projectService
+@inject IWorkSessionService workSessionService
+
+<div class="row g-2 align-items-end">
+    <div class="col-md">
+        <label for="userSelect" class="form-label">Korisnici</label>
+        <select id="userSelect" class="form-select">
+            <option value="">Svi korisnici</option>
+            @foreach (var user in users)
+            {
+                <option value="@user.Id">@user.Name @user.Surname</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md">
+        <label for="projectSelect" class="form-label">Projekti</label>
+        <select id="projectSelect" class="form-select">
+            <option value="">Svi projekti</option>
+            @foreach (var project in projects)
+            {
+                <option value="@project.Id">@project.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-md">
+        <label for="fromDate" class="form-label">Od datuma</label>
+        <input id="fromDate" type="datetime-local" class="form-control" />
+    </div>
+
+    <div class="col-md">
+        <label for="toDate" class="form-label">Do datuma</label>
+        <input id="toDate" type="datetime-local" class="form-control" />
+    </div>
+</div>
+
+<div class="col-md-3 mb-4">
+    <div class="card text-bg-light">
+        <div class="card-body">
+            <h5 class="card-title">Ukupni radni sati</h5>
+            <p class="card-text display-6">@totalWorkHours</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<UserDTO> users = new();
+    private List<ProjectDTO> projects = new();
+    private List<WorkSessionDTO> workSessions = new();
+    private TimeSpan totalWorkHours;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await userService.GetAllAsync();
+        projects = await projectService.GetAllActive(true);
+        GetTotalWorkHours();
+    }
+
+    private async void GetTotalWorkHours()
+    {
+        foreach (var user in users)
+        {
+            var workSession = await workSessionService.GetAllUserSessionsAsync(user.Id);
+            foreach (var ws in workSession)
+            {
+                totalWorkHours = totalWorkHours + (ws.EndTime - ws.StartTime); 
+            }
+        }
+        StateHasChanged();
+    }
+}

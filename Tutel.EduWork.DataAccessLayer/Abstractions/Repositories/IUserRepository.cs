@@ -10,5 +10,6 @@ namespace Tutel.EduWork.DataAccessLayer.Abstractions.Repositories
         Task<ApplicationUser?> GetBySurnameAsync(string surname);
         Task<string?> GetRoleAsync(string userId);
         Task<List<ApplicationUser>> GetAllByRoleAsync(string role);
+        Task<List<ApplicationUser>> GetAllUsersOnProject(int projectId);
     }
 }

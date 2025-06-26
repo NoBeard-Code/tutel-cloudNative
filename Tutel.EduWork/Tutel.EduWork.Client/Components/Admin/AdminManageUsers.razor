@@ -1,0 +1,44 @@
+﻿@inject NavigationManager NavigationManager
+
+<h2 class="mb-4">Pregled zaposlenika</h2>
+
+<div class="mb-3 d-flex align-items-center">
+    <input type="text" class="form-control w-25" placeholder="Pretraži po imenu..." @bind="searchTerm" @bind:event="oninput" />
+</div>
+
+<table class="table table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>Ime i prezime</th>
+            <th>Email</th>
+            <th>Akcije</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in FilteredUsers)
+        {
+            <tr>
+                <td>@user.Name @user.Surname</td>
+                <td>@user.Email</td>
+                <td>
+                    <button class="btn btn-primary btn-sm me-2" @onclick="() => ViewUser(user.Id)">Pregled</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public List<UserDTO> Users { get; set; } = new();
+
+    private string searchTerm = string.Empty;
+
+    private IEnumerable<UserDTO> FilteredUsers => string.IsNullOrWhiteSpace(searchTerm)
+        ? Users
+        : Users.Where(u => $"{u.Name} {u.Surname}".Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
+    private void ViewUser(string userId)
+    {
+        NavigationManager.NavigateTo($"/manageuser/{userId}");
+    }
+}
