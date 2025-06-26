@@ -1,0 +1,37 @@
+﻿@page "/latelogins"
+
+@inject IUserService userService;
+@inject IWorkDayService workDayService;
+
+<table class="table table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>Ime i prezime</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in users)
+        {
+            <tr>
+                <td>@user.Name @user.Surname</td>
+                <td>@user.Email</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<UserDTO> users = new();
+    private List<string> lateLogIns;
+
+    protected override async Task OnInitializedAsync()
+    {
+        lateLogIns = await workDayService.GetUsersWithLateLogsIn();
+        foreach (var lateLogIn in lateLogIns)
+        {
+            var user = await userService.GetUserAsync(lateLogIn);
+            users.Add(user);
+        }
+    }
+}
