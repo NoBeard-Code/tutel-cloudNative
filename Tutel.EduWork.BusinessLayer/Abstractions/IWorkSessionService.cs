@@ -11,5 +11,6 @@ namespace Tutel.EduWork.BusinessLayer.Abstractions
         Task<List<WorkSessionDTO>> GetAllSessionsByDateAsync(DateOnly workDate);
         Task<List<WorkSessionDTO>> GetAllUserSessionsByOvertimeAsync(string userId, bool overtime);
         Task<List<WorkSessionDTO>> GetAllUserSessionsByTypeAsync(string userId, int typeId);
+        Task<List<WorkSessionDTO>> GetAllUserSessionsByProjectBetweenDays(string userId, int projectId, DateOnly startDate, DateOnly endDate);
     }
 }
