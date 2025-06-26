@@ -1,4 +1,8 @@
 ﻿@page "/addtimeoff"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
 @using Tutel.EduWork.BusinessLayer.Abstractions
 @using Tutel.EduWork.BusinessLayer.DTOs
 
@@ -6,6 +10,7 @@
 @inject IVacationService vacationService
 @inject ISickLeaveService sickLeaveService
 @inject IUserService userService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <h3>Dodaj odsutnost</h3>
 
@@ -21,7 +26,6 @@
 {
     <EditForm Model="@vacation" OnValidSubmit="HandleVacationSubmit">
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
         <div class="mb-3">
             <label class="form-label">Datum početka</label>
@@ -39,16 +43,28 @@
             <InputCheckbox @bind-Value="vacation.IsTeamBuilding" class="form-check-input" />
             <label class="form-check-label">Teambuilding</label>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Korisnik</label>
-            <select class="form-select" @bind="vacation.UserId">
-                <option value="">-- Odaberi korisnika --</option>
-                @foreach (var user in users)
-                {
-                    <option value="@user.Id">@user.FullName</option>
-                }
-            </select>
-        </div>
+
+        <AuthorizeView Roles="Admin,Superuser">
+            <Authorized Context="adminCtx">
+                <div class="mb-3">
+                    <label class="form-label">Korisnik</label>
+                    <select class="form-select" @bind="vacation.UserId">
+                        <option value="">-- Odaberi korisnika --</option>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.Id">@user.FullName</option>
+                        }
+                    </select>
+                </div>
+            </Authorized>
+            <NotAuthorized Context="userCtx">
+                <input type="hidden" value="@currentUserId"/>
+                <div class="mb-3">
+                    <label class="form-label">Korisnik</label>
+                    <input class="form-control" value="@currentUserFullName" disabled />
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
 
         <button type="submit" class="btn btn-success">Spremi</button>
         <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Natrag</button>
@@ -58,7 +74,6 @@ else if (selectedType == "sickleave")
 {
     <EditForm Model="@sickLeave" OnValidSubmit="HandleSickLeaveSubmit">
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
         <div class="mb-3">
             <label class="form-label">Datum početka</label>
@@ -71,17 +86,30 @@ else if (selectedType == "sickleave")
         <div class="mb-3">
             <label class="form-label">Razlog bolovanja</label>
             <InputText @bind-Value="sickLeave.Reason" class="form-control" />
+            <ValidationMessage For="@(() => sickLeave.Reason)" />
         </div>
-        <div class="mb-3">
-            <label class="form-label">Korisnik</label>
-            <select class="form-select" @bind="sickLeave.UserId">
-                <option value="">-- Odaberi korisnika --</option>
-                @foreach (var user in users)
-                {
-                    <option value="@user.Id">@user.FullName</option>
-                }
-            </select>
-        </div>
+
+        <AuthorizeView Roles="Admin,Superuser">
+            <Authorized Context="adminCtx">
+                <div class="mb-3">
+                    <label class="form-label">Korisnik</label>
+                    <select class="form-select" @bind="sickLeave.UserId">
+                        <option value="">-- Odaberi korisnika --</option>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.Id">@user.FullName</option>
+                        }
+                    </select>
+                </div>
+            </Authorized>
+            <NotAuthorized Context="userCtx">
+                <input type="hidden" value="@currentUserId"/>
+                <div class="mb-3">
+                    <label class="form-label">Korisnik</label>
+                    <input class="form-control" value="@currentUserFullName" disabled />
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
 
         <button type="submit" class="btn btn-success">Spremi</button>
         <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Natrag</button>
@@ -95,23 +123,38 @@ else if (selectedType == "sickleave")
 
 @code {
     private string selectedType = "vacation";
-    private string message = "";
-    private string alertClass = "";
+    private string message = string.Empty;
+    private string alertClass = string.Empty;
 
     private List<UserDTO> users = new();
 
+    private string? currentUserId;
+    private string? currentUserFullName;
+    private bool isAdmin;
+
     protected override async Task OnInitializedAsync()
     {
-        users = await userService.GetAllAsync();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        currentUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        currentUserFullName = user.Identity?.Name ?? "";
+        isAdmin = user.IsInRole("Admin") || user.IsInRole("Superuser");
+
+        if (isAdmin)
+        {
+            users = await userService.GetAllAsync();
+        }
     }
 
-    private VacationDTO vacation = new VacationDTO
+    private VacationDTO vacation = new()
     {
         StartDate = DateOnly.FromDateTime(DateTime.Today),
         EndDate = DateOnly.FromDateTime(DateTime.Today),
         Year = DateTime.Today.Year
     };
-    private SickLeaveDTO sickLeave = new SickLeaveDTO
+
+    private SickLeaveDTO sickLeave = new()
     {
         StartDate = DateOnly.FromDateTime(DateTime.Today),
         EndDate = DateOnly.FromDateTime(DateTime.Today)
@@ -119,70 +162,82 @@ else if (selectedType == "sickleave")
 
     private async Task HandleVacationSubmit()
     {
+        if (!isAdmin)
+        {
+            vacation.UserId = currentUserId!;
+        }
+
+        if (vacation.StartDate > vacation.EndDate)
+        {
+            ShowError("Datum početka ne može biti nakon datuma kraja!");
+            return;
+        }
+        if (string.IsNullOrEmpty(vacation.UserId))
+        {
+            ShowError("Morate odabrati korisnika!");
+            return;
+        }
+
         try
         {
-            if (vacation.StartDate > vacation.EndDate)
-            {
-                message = "Datum početka ne može biti nakon datuma kraja!";
-                alertClass = "alert-danger";
-                return;
-            }
-            if (string.IsNullOrEmpty(vacation.UserId))
-            {
-                message = "Morate odabrati korisnika!";
-                alertClass = "alert-danger";
-                return;
-            }
-
             await vacationService.AddAsync(vacation);
-            message = "Godišnji odmor uspješno dodan!";
-            alertClass = "alert-success";
-            StateHasChanged();
+            ShowSuccess("Godišnji odmor uspješno dodan!");
             await Task.Delay(1200);
             NavigationManager.NavigateTo("/timeoff");
         }
         catch (Exception ex)
         {
-            var inner = ex.InnerException != null ? ex.InnerException.Message : "";
-            message = $"Greška: {ex.Message} {inner}";
-            alertClass = "alert-danger";
+            ShowError($"Greška: {ex.Message} {(ex.InnerException?.Message ?? string.Empty)}");
         }
     }
 
     private async Task HandleSickLeaveSubmit()
     {
+        if (!isAdmin)
+        {
+            sickLeave.UserId = currentUserId!;
+        }
+
+        if (sickLeave.StartDate > sickLeave.EndDate)
+        {
+            ShowError("Datum početka ne može biti nakon datuma kraja!");
+            return;
+        }
+        if (string.IsNullOrEmpty(sickLeave.UserId))
+        {
+            ShowError("Morate odabrati korisnika!");
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(sickLeave.Reason))
+        {
+            ShowError("Morate unijeti razlog bolovanja!");
+            return;
+        }
+
         try
         {
-            if (sickLeave.StartDate > sickLeave.EndDate)
-            {
-                message = "Datum početka ne može biti nakon datuma kraja!";
-                alertClass = "alert-danger";
-                return;
-            }
-            if (string.IsNullOrEmpty(sickLeave.UserId))
-            {
-                message = "Morate odabrati korisnika!";
-                alertClass = "alert-danger";
-                return;
-            }
-
             await sickLeaveService.AddAsync(sickLeave);
-            message = "Bolovanje uspješno dodano!";
-            alertClass = "alert-success";
-            StateHasChanged();
+            ShowSuccess("Bolovanje uspješno dodano!");
             await Task.Delay(1200);
             NavigationManager.NavigateTo("/timeoff");
         }
         catch (Exception ex)
         {
-            var inner = ex.InnerException != null ? ex.InnerException.Message : "";
-            message = $"Greška: {ex.Message} {inner}";
-            alertClass = "alert-danger";
+            ShowError($"Greška: {ex.Message} {(ex.InnerException?.Message ?? string.Empty)}");
         }
     }
 
-    private void GoBack()
+    private void GoBack() => NavigationManager.NavigateTo("/timeoff");
+
+    private void ShowError(string msg)
     {
-        NavigationManager.NavigateTo("/timeoff");
+        message = msg;
+        alertClass = "alert-danger";
+    }
+
+    private void ShowSuccess(string msg)
+    {
+        message = msg;
+        alertClass = "alert-success";
     }
 }

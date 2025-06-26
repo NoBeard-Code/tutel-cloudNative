@@ -1,16 +1,26 @@
 ﻿@page "/editvacation/{Id:int}"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @using Tutel.EduWork.BusinessLayer.Abstractions
 @using Tutel.EduWork.BusinessLayer.DTOs
 
 @inject IVacationService vacationService
 @inject IUserService userService
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
 
 <h3>Uredi godišnji odmor</h3>
 
-@if (vacation == null || users == null)
+@if (isLoading)
 {
     <p>Učitavanje...</p>
+}
+else if (!hasAccess)
+{
+    <div class="alert alert-danger">Nemate prava pristupa ovoj stranici.</div>
 }
 else
 {
@@ -34,20 +44,32 @@ else
             <InputCheckbox @bind-Value="vacation.IsTeamBuilding" class="form-check-input" />
             <label class="form-check-label">Teambuilding</label>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Korisnik</label>
-            <select class="form-select" @bind="vacation.UserId">
-                <option value="">-- Odaberi korisnika --</option>
-                @foreach (var user in users)
-                {
-                    <option value="@user.Id">@user.FullName</option>
-                }
-            </select>
-        </div>
+
+        <AuthorizeView Roles="Admin,Superuser" Context="authCtx">
+            <Authorized Context="adminCtx">
+                <div class="mb-3">
+                    <label class="form-label">Korisnik</label>
+                    <select class="form-select" value="@vacation.UserId" @onchange="OnVacationUserChanged">
+                        <option value="">-- Odaberi korisnika --</option>
+                        @foreach (var u in users)
+                        {
+                            <option value="@u.Id">@u.FullName</option>
+                        }
+                    </select>
+                </div>
+            </Authorized>
+            <NotAuthorized Context="userCtx">
+                <div class="mb-3">
+                    <label class="form-label">Korisnik</label>
+                    <input class="form-control" value="@vacation.FullName" disabled />
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
 
         <button type="submit" class="btn btn-success">Spremi</button>
         <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Natrag</button>
     </EditForm>
+
     @if (!string.IsNullOrEmpty(message))
     {
         <div class="alert @alertClass mt-3">@message</div>
@@ -56,25 +78,84 @@ else
 
 @code {
     [Parameter] public int Id { get; set; }
+
     private VacationDTO? vacation;
     private List<UserDTO>? users;
-    private string message = "";
-    private string alertClass = "";
+
+    private string? currentUserId;
+    private string? currentUserFullName;
+
+    private bool isAdmin;
+    private bool hasAccess = true;
+    private bool isLoading = true;
+
+    private string message = string.Empty;
+    private string alertClass = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        users = await userService.GetAllAsync();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        currentUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        isAdmin = user.IsInRole("Admin") || user.IsInRole("Superuser");
+
         vacation = await vacationService.GetByIdAsync(Id);
+        if (vacation == null)
+        {
+            hasAccess = false;
+            isLoading = false;
+            return;
+        }
+
+        if (!isAdmin && vacation.UserId != currentUserId)
+        {
+            hasAccess = false;
+            isLoading = false;
+            return;
+        }
+
+        if (isAdmin)
+        {
+            users = await userService.GetAllAsync();
+        }
+        else
+        {
+            currentUserFullName = vacation.FullName;
+        }
+
+        isLoading = false;
+    }
+
+    private void OnVacationUserChanged(ChangeEventArgs e)
+    {
+        var id = e.Value?.ToString();
+        vacation!.UserId = id;
+        var usr = users?.FirstOrDefault(u => u.Id == id);
+        vacation.FullName = usr?.FullName ?? string.Empty;
     }
 
     private async Task HandleEdit()
     {
+        if (!hasAccess)
+            return;
+
+        if (!isAdmin)
+        {
+            vacation!.UserId = currentUserId!;
+        }
+
         try
         {
-            await vacationService.UpdateAsync(vacation!);
+            if (vacation!.StartDate > vacation.EndDate)
+            {
+                message = "Datum početka ne može biti nakon datuma kraja!";
+                return;
+            }
+            await vacationService.UpdateAsync(vacation);
             message = "Uspješno ažurirano!";
             alertClass = "alert-success";
-            await Task.Delay(1200);
+            await Task.Delay(1000);
             NavigationManager.NavigateTo("/timeoff");
         }
         catch (Exception ex)
@@ -84,8 +165,5 @@ else
         }
     }
 
-    private void GoBack()
-    {
-        NavigationManager.NavigateTo("/timeoff");
-    }
+    private void GoBack() => NavigationManager.NavigateTo("/timeoff");
 }

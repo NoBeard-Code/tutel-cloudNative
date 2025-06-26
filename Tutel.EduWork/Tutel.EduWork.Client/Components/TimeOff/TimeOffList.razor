@@ -1,11 +1,28 @@
-﻿@using Tutel.EduWork.BusinessLayer.Abstractions
+﻿@page "/absencelist"
+
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization
+@using Tutel.EduWork.BusinessLayer.Abstractions
 @using Tutel.EduWork.BusinessLayer.DTOs
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+
 
 @inject NavigationManager NavigationManager
 @inject IVacationService vacationService
 @inject ISickLeaveService sickLeaveService
+@inject AuthenticationStateProvider AuthStateProvider
 
-<button class="btn btn-success mb-3" @onclick="NavigateToAddPage">Dodaj odsutnost</button>
+
+<AuthorizeView Roles="Admin,Superuser">
+    <Authorized>
+        <button class="btn btn-success mb-3" @onclick="NavigateToAddPage">Dodaj odsutnost</button>
+    </Authorized>
+    <NotAuthorized>
+        <button class="btn btn-success mb-3" @onclick="NavigateToAddPage">Dodaj svoju odsutnost</button>
+    </NotAuthorized>
+</AuthorizeView>
 
 <h3>Prikaz odsutnosti</h3>
 
@@ -15,15 +32,16 @@
 }
 else
 {
-    <div class="mb-3">
-        <label for="absenceFilter" class="form-label me-2">Prikaži:</label>
-        <select id="absenceFilter" class="form-select d-inline-block w-auto"
-                @bind="SelectedType">
-            <option value="all">Sve odsutnosti</option>
-            <option value="vacation">Godišnji odmori</option>
-            <option value="sickleave">Bolovanja</option>
-        </select>
-    </div>
+    <AuthorizeView Roles="Admin,Superuser">
+        <div class="mb-3">
+            <label for="absenceFilter" class="form-label me-2">Prikaži:</label>
+            <select id="absenceFilter" class="form-select d-inline-block w-auto" @bind="SelectedType">
+                <option value="all">Sve odsutnosti</option>
+                <option value="vacation">Godišnji odmori</option>
+                <option value="sickleave">Bolovanja</option>
+            </select>
+        </div>
+    </AuthorizeView>
 
     <table class="table">
         <thead>
@@ -47,14 +65,33 @@ else
                     <td>@absence.EndDate.ToShortDateString()</td>
                     <td>@absence.Days</td>
                     <td>@absence.Details</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => EditAbsence(absence)">Uredi</button>
-                        <button class="btn btn-danger" @onclick="() => ShowDeleteDialog(absence)">Obriši</button>
-                    </td>
+
+                    <AuthorizeView Roles="Admin,Superuser">
+                        <Authorized>
+                            <td>
+                                <button class="btn btn-primary" @onclick="() => EditAbsence(absence)">Uredi</button>
+                                <button class="btn btn-danger" @onclick="() => ShowDeleteDialog(absence)">Obriši</button>
+                            </td>
+                        </Authorized>
+                        <NotAuthorized>
+                            @if (absence.UserId == currentUserId)
+                            {
+                                <td>
+                                    <button class="btn btn-primary" @onclick="() => EditAbsence(absence)">Uredi</button>
+                                    <button class="btn btn-danger" @onclick="() => ShowDeleteDialog(absence)">Obriši</button>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+                        </NotAuthorized>
+                    </AuthorizeView>
                 </tr>
             }
         </tbody>
     </table>
+
     @if (!string.IsNullOrEmpty(errorMessage))
     {
         <div class="alert alert-danger">@errorMessage</div>
@@ -83,9 +120,12 @@ else
 }
 
 @code {
-    private List<VacationDTO> vacations;
-    private List<SickLeaveDTO> sickLeaves;
+    private string? currentUserId;
+
+    private List<VacationDTO>? vacations;
+    private List<SickLeaveDTO>? sickLeaves;
     private List<AbsenceViewModel> filteredAbsences = new();
+
     private string? errorMessage;
     private bool showConfirmDialog = false;
     private AbsenceViewModel? absenceToDelete;
@@ -106,48 +146,67 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        currentUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
         vacations = await vacationService.GetAllAsync();
         sickLeaves = await sickLeaveService.GetAllAsync();
+
         FilterAbsences();
     }
 
+    private bool IsAdminOrSuperuser(ClaimsPrincipal user)
+        => user.IsInRole("Admin") || user.IsInRole("Superuser");
+
     private void FilterAbsences()
     {
+        var authStateTask = AuthStateProvider.GetAuthenticationStateAsync();
+        authStateTask.Wait();
+        var user = authStateTask.Result.User;
+        bool isAdmin = IsAdminOrSuperuser(user);
+
         var allAbsences = new List<AbsenceViewModel>();
 
         if (SelectedType == "all" || SelectedType == "vacation")
         {
-            allAbsences.AddRange(vacations.Select(v => new AbsenceViewModel
+            allAbsences.AddRange(vacations!.Select(v => new AbsenceViewModel
             {
                 Id = v.Id,
+                UserId = v.UserId,
                 FullName = v.FullName ?? v.UserId,
                 Type = "Godišnji",
                 StartDate = v.StartDate,
                 EndDate = v.EndDate,
                 Days = (v.EndDate.ToDateTime(TimeOnly.MinValue) - v.StartDate.ToDateTime(TimeOnly.MinValue)).Days + 1,
-                Details = v.IsTeamBuilding ? "Teambuilding" : "",
+                Details = v.IsTeamBuilding ? "Teambuilding" : string.Empty,
                 IsVacation = true
             }));
         }
 
         if (SelectedType == "all" || SelectedType == "sickleave")
         {
-            allAbsences.AddRange(sickLeaves.Select(s => new AbsenceViewModel
+            allAbsences.AddRange(sickLeaves!.Select(s => new AbsenceViewModel
             {
                 Id = s.Id,
+                UserId = s.UserId,
                 FullName = s.FullName ?? s.UserId,
                 Type = "Bolovanje",
                 StartDate = s.StartDate,
                 EndDate = s.EndDate,
                 Days = (s.EndDate.ToDateTime(TimeOnly.MinValue) - s.StartDate.ToDateTime(TimeOnly.MinValue)).Days + 1,
-                Details = s.Reason ?? "",
+                Details = s.Reason ?? string.Empty,
                 IsVacation = false
             }));
         }
 
-        filteredAbsences = allAbsences
-            .OrderByDescending(a => a.StartDate)
-            .ToList();
+        if (!isAdmin && !string.IsNullOrEmpty(currentUserId))
+        {
+            allAbsences = allAbsences.Where(a => a.UserId == currentUserId).ToList();
+        }
+
+        filteredAbsences = allAbsences.OrderByDescending(a => a.StartDate).ToList();
     }
 
     private void NavigateToAddPage()
@@ -165,17 +224,17 @@ else
 
     private async Task RemoveAbsence(AbsenceViewModel absence)
     {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        bool isAdmin = IsAdminOrSuperuser(authState.User);
+
+        if (!isAdmin && absence.UserId != currentUserId)
+            return;
+
         try
         {
-            if (absence == null)
-                return;
-
             if (absence.IsVacation)
             {
-                if (vacations == null)
-                    return;
-
-                var vacation = vacations.FirstOrDefault(v => v.Id == absence.Id);
+                var vacation = vacations?.FirstOrDefault(v => v.Id == absence.Id);
                 if (vacation != null)
                 {
                     await vacationService.RemoveAsync(vacation);
@@ -184,10 +243,7 @@ else
             }
             else
             {
-                if (sickLeaves == null)
-                    return;
-
-                var sickLeave = sickLeaves.FirstOrDefault(s => s.Id == absence.Id);
+                var sickLeave = sickLeaves?.FirstOrDefault(s => s.Id == absence.Id);
                 if (sickLeave != null)
                 {
                     await sickLeaveService.RemoveAsync(sickLeave);
@@ -199,12 +255,20 @@ else
         {
             errorMessage = $"Greška prilikom brisanja: {ex.Message}";
         }
+
         FilterAbsences();
         StateHasChanged();
     }
 
     private void ShowDeleteDialog(AbsenceViewModel absence)
     {
+        var authStateTask = AuthStateProvider.GetAuthenticationStateAsync();
+        authStateTask.Wait();
+        bool isAdmin = IsAdminOrSuperuser(authStateTask.Result.User);
+
+        if (!isAdmin && absence.UserId != currentUserId)
+            return;
+
         absenceToDelete = absence;
         showConfirmDialog = true;
     }
@@ -228,12 +292,13 @@ else
     private class AbsenceViewModel
     {
         public int Id { get; set; }
-        public string FullName { get; set; }
-        public string Type { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
         public DateOnly StartDate { get; set; }
         public DateOnly EndDate { get; set; }
         public int Days { get; set; }
-        public string Details { get; set; }
+        public string Details { get; set; } = string.Empty;
         public bool IsVacation { get; set; }
     }
 }

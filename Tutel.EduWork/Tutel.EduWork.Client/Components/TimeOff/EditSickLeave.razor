@@ -1,16 +1,26 @@
 ﻿@page "/editsickleave/{Id:int}"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @using Tutel.EduWork.BusinessLayer.Abstractions
 @using Tutel.EduWork.BusinessLayer.DTOs
 
 @inject ISickLeaveService sickLeaveService
 @inject IUserService userService
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
 
 <h3>Uredi bolovanje</h3>
 
-@if (sickLeave == null || users == null)
+@if (isLoading)
 {
     <p>Učitavanje...</p>
+}
+else if (!hasAccess)
+{
+    <div class="alert alert-danger">Nemate prava pristupa ovoj stranici.</div>
 }
 else
 {
@@ -30,20 +40,32 @@ else
             <label class="form-label">Razlog bolovanja</label>
             <InputText @bind-Value="sickLeave.Reason" class="form-control" />
         </div>
-        <div class="mb-3">
-            <label class="form-label">Korisnik</label>
-            <select class="form-select" @bind="sickLeave.UserId">
-                <option value="">-- Odaberi korisnika --</option>
-                @foreach (var user in users)
-                {
-                    <option value="@user.Id">@user.FullName</option>
-                }
-            </select>
-        </div>
+
+        <AuthorizeView Roles="Admin,Superuser">
+            <Authorized Context="adminCtx">
+                <div class="mb-3">
+                    <label class="form-label">Korisnik</label>
+                    <select class="form-select" @bind="sickLeave.UserId">
+                        <option value="">-- Odaberi korisnika --</option>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.Id">@user.FullName</option>
+                        }
+                    </select>
+                </div>
+            </Authorized>
+            <NotAuthorized Context="userCtx">
+                <div class="mb-3">
+                    <label class="form-label">Korisnik</label>
+                    <input class="form-control" value="@currentUserFullName" disabled />
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
 
         <button type="submit" class="btn btn-success">Spremi</button>
         <button type="button" class="btn btn-secondary ms-2" @onclick="GoBack">Natrag</button>
     </EditForm>
+
     @if (!string.IsNullOrEmpty(message))
     {
         <div class="alert @alertClass mt-3">@message</div>
@@ -52,25 +74,76 @@ else
 
 @code {
     [Parameter] public int Id { get; set; }
+
     private SickLeaveDTO? sickLeave;
     private List<UserDTO>? users;
-    private string message = "";
-    private string alertClass = "";
+
+    private string? currentUserId;
+    private string? currentUserFullName;
+
+    private bool isAdmin;
+    private bool hasAccess = true;
+    private bool isLoading = true;
+
+    private string message = string.Empty;
+    private string alertClass = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        users = await userService.GetAllAsync();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        currentUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        isAdmin = user.IsInRole("Admin") || user.IsInRole("Superuser");
+
         sickLeave = await sickLeaveService.Get(Id);
+        if (sickLeave == null)
+        {
+            hasAccess = false;
+            isLoading = false;
+            return;
+        }
+
+        if (!isAdmin && sickLeave.UserId != currentUserId)
+        {
+            hasAccess = false;
+            isLoading = false;
+            return;
+        }
+
+        if (isAdmin)
+        {
+            users = await userService.GetAllAsync();
+        }
+        else
+        {
+            currentUserFullName = sickLeave.FullName;
+        }
+
+        isLoading = false;
     }
 
     private async Task HandleEdit()
     {
+        if (!hasAccess)
+            return;
+
+        if (!isAdmin)
+        {
+            sickLeave!.UserId = currentUserId!;
+        }
+
         try
         {
+            if (sickLeave.StartDate > sickLeave.EndDate)
+            {
+                message = "Datum početka ne može biti nakon datuma kraja!";
+                return;
+            }
             await sickLeaveService.UpdateAsync(sickLeave!);
             message = "Uspješno ažurirano!";
             alertClass = "alert-success";
-            await Task.Delay(1200);
+            await Task.Delay(1000);
             NavigationManager.NavigateTo("/timeoff");
         }
         catch (Exception ex)
@@ -80,8 +153,5 @@ else
         }
     }
 
-    private void GoBack()
-    {
-        NavigationManager.NavigateTo("/timeoff");
-    }
+    private void GoBack() => NavigationManager.NavigateTo("/timeoff");
 }
