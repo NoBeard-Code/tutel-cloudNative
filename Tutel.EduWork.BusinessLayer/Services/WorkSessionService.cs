@@ -10,16 +10,19 @@ namespace Tutel.EduWork.BusinessLayer.Services
     public class WorkSessionService : Service<WorkSession, WorkSessionDTO>, IWorkSessionService
     {
         private readonly IWorkSessionRepository _workSessionRepo;
+        private readonly IWorkDayRepository _workDayRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<WorkSessionService> _logger;
-
         public WorkSessionService(
             IWorkSessionRepository workSessionRepo,
+            IWorkDayRepository workDayRepository,
             IMapper mapper,
             ILogger<WorkSessionService> logger
+
         ) : base(workSessionRepo, mapper, logger)
         {
             _workSessionRepo = workSessionRepo;
+            _workDayRepository = workDayRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -117,6 +120,23 @@ namespace Tutel.EduWork.BusinessLayer.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting all work sessions with userId: {UserId}, and projectId: {ProjectId}", userId, projectId);
+                throw;
+            }
+        }
+
+        public async Task<List<WorkSessionDTO>> GetAllUserSessionsByProjectBetweenDays(string userId, int projectId, DateOnly startDate, DateOnly endDate)
+        {
+            try
+            {
+                var workDays = await _workDayRepository.GetAllUserWorkDaysBetweenDates(userId, startDate, endDate);
+                var workSessions = await _workSessionRepo.GetAllUserSessionsByProjectAsync(userId, projectId);
+                var filteredWorkSessions = workSessions.Where((ws) => { return workDays.Any(wd => wd.Id == ws.WorkDayId); }).ToList();
+                return _mapper.Map<List<WorkSession>, List<WorkSessionDTO>>(filteredWorkSessions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all work sessions with userId: {UserId}," +
+                    " projectId: {ProjectId}, startDate: {startDate}, endDate: {endDate}", userId, projectId, startDate, endDate);
                 throw;
             }
         }
