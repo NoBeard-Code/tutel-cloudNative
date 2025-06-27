@@ -22,11 +22,17 @@
 
     @if (!string.IsNullOrEmpty(message))
     {
-        <div class="container mt-3 alert @messageClass">@message</div>
+        <div class="container mt-3 alert @messageClass">@message 
+            @if (workDayAlreadyExists)
+            {
+                <LinkToWorkSlices WorkDayId=workDayId></LinkToWorkSlices>
+            }
+        </div>
     }
 </EditForm>
 
 @inject IWorkDayService workDayService;
+@inject NavigationManager NavigationManager;
 @code
 {
     [Parameter]
@@ -38,6 +44,7 @@
     private bool workDayAlreadyExists = false;
 
     private WorkDayDTO workDay = new WorkDayDTO();
+    private int workDayId;
     private string? message = "";
     private string messageClass = "alert-success";
 
@@ -63,7 +70,8 @@
 
     private async Task CheckIfWorkDayExists()
     {
-        if (await workDayService.GetByUserIdWorkDateAsync(UserId, workDay.WorkDate) == null)
+        WorkDayDTO workDayToCheck = await workDayService.GetByUserIdWorkDateAsync(UserId, workDay.WorkDate);
+        if (workDayToCheck == null)
         {
             messageClass = "alert-warning";
             message = $"Još niste unijeli radni dan za datum: {workDay.WorkDate}";
@@ -71,7 +79,8 @@
         }
         else
         {
-            message = "";
+            message = "Radni dan već postoji. ";
+            workDayId = workDayToCheck.Id;
             workDayAlreadyExists = true;
         }
     }
@@ -82,8 +91,9 @@
         try
         {
             await workDayService.AddAsync(workDay);
+            workDayId = (await workDayService.GetByUserIdWorkDateAsync(UserId, workDay.WorkDate)).Id;
             messageClass = "alert-success";
-            message = "Radni dan je uspješno dodan.";
+            message = "Radni dan je uspješno dodan. ";
             workDayAlreadyExists = true;
         }
         catch (DuplicateInsertException ex)
@@ -98,6 +108,11 @@
             messageClass = "alert-danger";
             workDayAlreadyExists = false;
         }
+    }
+
+    private void GoToTimeSlices(int workDayId)
+    {
+        NavigationManager.NavigateTo($"/timeslices/{workDayId}");
     }
 }
 
