@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 using Tutel.EduWork.BusinessLayer.Abstractions;
 using Tutel.EduWork.BusinessLayer.DTOs;
 using Tutel.EduWork.DataAccessLayer.Abstractions.Repositories;
@@ -19,7 +20,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
         public UserService(
             IUserRepository userRepo,
             IMapper mapper,
-            UserManager<ApplicationUser> userManager,
+            UserManager<ApplicationUser> userMananger,
              RoleManager<IdentityRole> roleManager,
             ILogger<UserService> logger
         ) : base(userRepo, mapper, logger)
@@ -27,7 +28,7 @@ namespace Tutel.EduWork.BusinessLayer.Services
             _userRepo = userRepo;
             _mapper = mapper;
             _logger = logger;
-            _userManager = userManager;
+            _userManager = userMananger;
             _roleManager = roleManager;
         }
 

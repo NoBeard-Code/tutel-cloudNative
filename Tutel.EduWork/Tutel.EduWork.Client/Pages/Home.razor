@@ -1,7 +1,40 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
 @using Tutel.EduWork.BusinessLayer.Abstractions
 @using Tutel.EduWork.BusinessLayer.DTOs
 @using Tutel.EduWork.BusinessLayer.Exceptions
 @using Tutel.EduWork.Client.Components.Workday;
+@using Tutel.EduWork.DataAccessLayer.Entities
 <PageTitle>Home</PageTitle>
-<AddWorkday></AddWorkday>
+
+<AuthorizeView>
+    <Authorized>
+        <AddWorkday UserId=@userId></AddWorkday>
+    </Authorized>
+    <NotAuthorized>
+        Niste prijavljeni.
+    </NotAuthorized>
+</AuthorizeView>
+
+@inject AuthenticationStateProvider authenticationStateProvider;
+@code
+{
+    private DateOnly startDate;
+    private DateOnly endDate;
+
+    private string? userId;
+
+    protected override void OnInitialized()
+    {
+        endDate = DateOnly.FromDateTime(DateTime.Now);
+        startDate = endDate.AddDays(-7);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+    }
+}

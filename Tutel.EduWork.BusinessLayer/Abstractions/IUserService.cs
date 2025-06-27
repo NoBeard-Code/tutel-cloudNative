@@ -1,4 +1,5 @@
-﻿using Tutel.EduWork.BusinessLayer.DTOs;
+﻿using System.Security.Claims;
+using Tutel.EduWork.BusinessLayer.DTOs;
 
 namespace Tutel.EduWork.BusinessLayer.Abstractions
 {
