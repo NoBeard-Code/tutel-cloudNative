@@ -26,7 +26,6 @@ else
 {
     <EditForm Model="@sickLeave" OnValidSubmit="HandleEdit">
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
         <div class="mb-3">
             <label class="form-label">Datum početka</label>
@@ -41,11 +40,11 @@ else
             <InputText @bind-Value="sickLeave.Reason" class="form-control" />
         </div>
 
-        <AuthorizeView Roles="Admin,Superuser">
+        <AuthorizeView Roles="Admin,Superuser" Context="authCtx">
             <Authorized Context="adminCtx">
                 <div class="mb-3">
                     <label class="form-label">Korisnik</label>
-                    <select class="form-select" @bind="sickLeave.UserId">
+                    <select class="form-select" value="@sickLeave.UserId" @onchange="OnUserChanged">
                         <option value="">-- Odaberi korisnika --</option>
                         @foreach (var user in users)
                         {
@@ -57,7 +56,7 @@ else
             <NotAuthorized Context="userCtx">
                 <div class="mb-3">
                     <label class="form-label">Korisnik</label>
-                    <input class="form-control" value="@currentUserFullName" disabled />
+                    <input class="form-control" value="@sickLeave.FullName" disabled />
                 </div>
             </NotAuthorized>
         </AuthorizeView>
@@ -68,7 +67,7 @@ else
 
     @if (!string.IsNullOrEmpty(message))
     {
-        <div class="alert @alertClass mt-3">@message</div>
+        <div class="alert @alertClass mt-3" role="alert">@message</div>
     }
 }
 
@@ -79,7 +78,6 @@ else
     private List<UserDTO>? users;
 
     private string? currentUserId;
-    private string? currentUserFullName;
 
     private bool isAdmin;
     private bool hasAccess = true;
@@ -115,12 +113,16 @@ else
         {
             users = await userService.GetAllAsync();
         }
-        else
-        {
-            currentUserFullName = sickLeave.FullName;
-        }
 
         isLoading = false;
+    }
+
+    private void OnUserChanged(ChangeEventArgs e)
+    {
+        var id = e.Value?.ToString();
+        sickLeave!.UserId = id;
+        var usr = users?.FirstOrDefault(u => u.Id == id);
+        sickLeave.FullName = usr?.FullName ?? string.Empty;
     }
 
     private async Task HandleEdit()
@@ -129,29 +131,38 @@ else
             return;
 
         if (!isAdmin)
-        {
             sickLeave!.UserId = currentUserId!;
+
+        if (sickLeave!.StartDate > sickLeave.EndDate)
+        {
+            ShowError("Datum početka ne može biti nakon datuma kraja!");
+            return;
         }
 
         try
         {
-            if (sickLeave.StartDate > sickLeave.EndDate)
-            {
-                message = "Datum početka ne može biti nakon datuma kraja!";
-                return;
-            }
-            await sickLeaveService.UpdateAsync(sickLeave!);
-            message = "Uspješno ažurirano!";
-            alertClass = "alert-success";
+            await sickLeaveService.UpdateAsync(sickLeave);
+            ShowSuccess("Uspješno ažurirano!");
             await Task.Delay(1000);
             NavigationManager.NavigateTo("/timeoff");
         }
         catch (Exception ex)
         {
-            message = $"Greška: {ex.Message}";
-            alertClass = "alert-danger";
+            ShowError($"Greška: {ex.Message}");
         }
     }
 
     private void GoBack() => NavigationManager.NavigateTo("/timeoff");
+
+    private void ShowError(string msg)
+    {
+        message = msg;
+        alertClass = "alert-danger";
+    }
+
+    private void ShowSuccess(string msg)
+    {
+        message = msg;
+        alertClass = "alert-success";
+    }
 }

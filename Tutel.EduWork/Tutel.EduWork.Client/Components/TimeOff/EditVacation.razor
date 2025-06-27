@@ -26,7 +26,6 @@ else
 {
     <EditForm Model="@vacation" OnValidSubmit="HandleEdit">
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
         <div class="mb-3">
             <label class="form-label">Datum početka</label>
@@ -72,7 +71,7 @@ else
 
     @if (!string.IsNullOrEmpty(message))
     {
-        <div class="alert @alertClass mt-3">@message</div>
+        <div class="alert @alertClass mt-3" role="alert">@message</div>
     }
 }
 
@@ -83,7 +82,6 @@ else
     private List<UserDTO>? users;
 
     private string? currentUserId;
-    private string? currentUserFullName;
 
     private bool isAdmin;
     private bool hasAccess = true;
@@ -119,10 +117,6 @@ else
         {
             users = await userService.GetAllAsync();
         }
-        else
-        {
-            currentUserFullName = vacation.FullName;
-        }
 
         isLoading = false;
     }
@@ -141,29 +135,38 @@ else
             return;
 
         if (!isAdmin)
-        {
             vacation!.UserId = currentUserId!;
+
+        if (vacation!.StartDate > vacation.EndDate)
+        {
+            ShowError("Datum početka ne može biti nakon datuma kraja!");
+            return;
         }
 
         try
         {
-            if (vacation!.StartDate > vacation.EndDate)
-            {
-                message = "Datum početka ne može biti nakon datuma kraja!";
-                return;
-            }
             await vacationService.UpdateAsync(vacation);
-            message = "Uspješno ažurirano!";
-            alertClass = "alert-success";
+            ShowSuccess("Uspješno ažurirano!");
             await Task.Delay(1000);
             NavigationManager.NavigateTo("/timeoff");
         }
         catch (Exception ex)
         {
-            message = $"Greška: {ex.Message}";
-            alertClass = "alert-danger";
+            ShowError($"Greška: {ex.Message}");
         }
     }
 
     private void GoBack() => NavigationManager.NavigateTo("/timeoff");
+
+    private void ShowError(string msg)
+    {
+        message = msg;
+        alertClass = "alert-danger";
+    }
+
+    private void ShowSuccess(string msg)
+    {
+        message = msg;
+        alertClass = "alert-success";
+    }
 }
