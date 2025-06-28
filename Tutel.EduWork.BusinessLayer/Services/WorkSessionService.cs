@@ -169,6 +169,20 @@ namespace Tutel.EduWork.BusinessLayer.Services
             }
         }
 
+        public async Task<List<WorkSessionTypeDTO>> GetAllTypesAsync()
+        {
+            try
+            {
+                var entities = await _workSessionRepo.GetAllWorkSessionTypesAsync();
+                return _mapper.Map<List<WorkSessionTypeDTO>>(entities);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all work‑session types");
+                throw;
+            }
+        }
+
         public async Task RemoveAsync(WorkSessionDTO entity)
         {
             try

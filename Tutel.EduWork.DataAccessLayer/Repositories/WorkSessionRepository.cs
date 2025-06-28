@@ -14,6 +14,11 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
             return await GetAllAsync();
         }
 
+        public async Task<List<WorkSessionType>> GetAllWorkSessionTypesAsync()
+        {
+            return await Context.Set<WorkSessionType>().AsNoTracking().ToListAsync();
+        }
+
         public async Task AddWorkSessionAsync(WorkSession workSession)
         {
             await AddAsync(workSession);
