@@ -140,6 +140,12 @@ else
             return;
         }
 
+        if (RequiresProject && (session.ProjectId == null || session.ProjectId == 0))
+        {
+            ShowError("Za odabranu vrstu rada morate odabrati projekt.");
+            return;
+        }
+
         if (RequiresProject && session.ProjectId == 0)
         {
             ShowError("Za odabranu vrstu rada morate odabrati projekt.");
