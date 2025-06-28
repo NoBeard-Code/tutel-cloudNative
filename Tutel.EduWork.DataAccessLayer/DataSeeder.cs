@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using Tutel.EduWork.Data;
+﻿using Tutel.EduWork.Data;
 
 namespace Tutel.EduWork.DataAccessLayer
 {
@@ -37,7 +36,6 @@ namespace Tutel.EduWork.DataAccessLayer
 
             var user1 = new Entities.ApplicationUser
             {
-                Id = "b1e207f2-9c36-41fd-b587-df7d4e0b4d2f",
                 UserName = "perokos@mail.com",
                 NormalizedUserName = "PEROKOS@MAIL.COM",
                 Email = "perokos@mail.com",
@@ -53,7 +51,6 @@ namespace Tutel.EduWork.DataAccessLayer
 
             var user2 = new Entities.ApplicationUser
             {
-                Id = "01667bee-0442-488d-9346-be00ccaaad86",
                 UserName = "matomedved@mail.com",
                 NormalizedUserName = "MATOMEDVED@MAIL.COM",
                 Email = "matomedved@mail.com",
@@ -84,29 +81,173 @@ namespace Tutel.EduWork.DataAccessLayer
             };
 
             _context.Projects.Add(project);
-            _context.SaveChanges(); 
+            _context.SaveChanges();
 
-            var workDay = new Entities.WorkDay
+            var workDay1 = new Entities.WorkDay
             {
                 WorkDate = new DateOnly(2025, 6, 17),
                 WorkDayStart = new TimeOnly(8, 0),
                 UserId = user1.Id
             };
 
-            _context.WorkDays.Add(workDay);
+            var workDay2 = new Entities.WorkDay
+            {
+                WorkDate = new DateOnly(2025, 6, 18),
+                WorkDayStart = new TimeOnly(8, 0),
+                UserId = user1.Id
+            };
+
+            var workDay3 = new Entities.WorkDay
+            {
+                WorkDate = new DateOnly(2025, 6, 19),
+                WorkDayStart = new TimeOnly(8, 0),
+                UserId = user1.Id
+            };
+
+            var workDay4 = new Entities.WorkDay
+            {
+                WorkDate = new DateOnly(2025, 6, 20),
+                WorkDayStart = new TimeOnly(8, 0),
+                UserId = user1.Id
+            };
+
+            var workDay5 = new Entities.WorkDay
+            {
+                WorkDate = new DateOnly(2025, 6, 21),
+                WorkDayStart = new TimeOnly(8, 0),
+                UserId = user1.Id
+            };
+
+            var workDay10 = new Entities.WorkDay
+            {
+                WorkDate = new DateOnly(2025, 6, 18),
+                WorkDayStart = new TimeOnly(8, 0),
+                UserId = user2.Id
+            };
+
+            var workDay11 = new Entities.WorkDay
+            {
+                WorkDate = new DateOnly(2025, 6, 19),
+                WorkDayStart = new TimeOnly(8, 0),
+                UserId = user2.Id
+            };
+
+            var workDay12 = new Entities.WorkDay
+            {
+                WorkDate = new DateOnly(2025, 6, 20),
+                WorkDayStart = new TimeOnly(8, 0),
+                UserId = user2.Id
+            };
+
+            _context.WorkDays.Add(workDay1);
+            _context.WorkDays.Add(workDay2);
+            _context.WorkDays.Add(workDay3);
+            _context.WorkDays.Add(workDay4);
+            _context.WorkDays.Add(workDay5);
+            _context.WorkDays.Add(workDay10);
+            _context.WorkDays.Add(workDay11);
+            _context.WorkDays.Add(workDay12);
             _context.SaveChanges(); 
 
-            var session = new Entities.WorkSession
+            var session1 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(8, 0),
+                EndTime = new TimeOnly(10, 30),
+                IsOvertime = false,
+                TypeId = typeWork.Id,
+                ProjectId = project.Id,
+                WorkDayId = workDay1.Id
+            };
+
+            var session2 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(9, 0),
+                EndTime = new TimeOnly(10, 0),
+                IsOvertime = false,
+                TypeId = typeWork.Id,
+                ProjectId = project.Id,
+                WorkDayId = workDay2.Id
+            };
+
+            var session3 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(10, 0),
+                EndTime = new TimeOnly(11, 0),
+                IsOvertime = false,
+                TypeId = typeWork.Id,
+                ProjectId = project.Id,
+                WorkDayId = workDay3.Id
+            };
+
+            var session4 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(8, 0),
+                EndTime = new TimeOnly(13, 0),
+                IsOvertime = false,
+                TypeId = typeWork.Id,
+                ProjectId = project.Id,
+                WorkDayId = workDay4.Id
+            };
+
+            var session5 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(9, 0),
+                EndTime = new TimeOnly(11, 0),
+                IsOvertime = false,
+                TypeId = typeWork.Id,
+                ProjectId = project.Id,
+                WorkDayId = workDay5.Id
+            };
+
+            var session10 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(8, 0),
+                EndTime = new TimeOnly(11, 0),
+                IsOvertime = false,
+                TypeId = typeWork.Id,
+                ProjectId = project.Id,
+                WorkDayId = workDay10.Id
+            };
+
+            var session11 = new Entities.WorkSession
             {
                 StartTime = new TimeOnly(8, 0),
                 EndTime = new TimeOnly(10, 0),
                 IsOvertime = false,
                 TypeId = typeWork.Id,
                 ProjectId = project.Id,
-                WorkDayId = workDay.Id
+                WorkDayId = workDay11.Id
             };
 
-            _context.WorkSessions.Add(session);
+            var session12 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(11, 0),
+                EndTime = new TimeOnly(16, 0),
+                IsOvertime = false,
+                TypeId = typeWork.Id,
+                ProjectId = project.Id,
+                WorkDayId = workDay11.Id
+            };
+
+            var session13 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(9, 0),
+                EndTime = new TimeOnly(11, 0),
+                IsOvertime = false,
+                TypeId = typeWork.Id,
+                ProjectId = project.Id,
+                WorkDayId = workDay12.Id
+            };
+
+            _context.WorkSessions.Add(session1);
+            _context.WorkSessions.Add(session2);
+            _context.WorkSessions.Add(session3);
+            _context.WorkSessions.Add(session4);
+            _context.WorkSessions.Add(session5);
+            _context.WorkSessions.Add(session10);
+            _context.WorkSessions.Add(session11);
+            _context.WorkSessions.Add(session12);
+            _context.WorkSessions.Add(session13);
 
             _context.Vacations.Add(new Entities.Vacation
             {

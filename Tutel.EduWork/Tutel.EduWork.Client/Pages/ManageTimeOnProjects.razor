@@ -1,74 +1,154 @@
 ﻿@page "/timeonprojects"
+@using MudBlazor
 
 @inject IUserService userService
 @inject IProjectService projectService
 @inject IWorkSessionService workSessionService
+@inject IWorkDayService workDayService
 
-<div class="row g-2 align-items-end">
-    <div class="col-md">
-        <label for="userSelect" class="form-label">Korisnici</label>
-        <select id="userSelect" class="form-select">
-            <option value="">Svi korisnici</option>
-            @foreach (var user in users)
-            {
-                <option value="@user.Id">@user.Name @user.Surname</option>
-            }
-        </select>
-    </div>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card p-4">
+            <h5 class="mb-3">Filtriraj podatke</h5>
+            <div class="row g-3 align-items-end">
+                <div class="col-md">
+                    <label for="userSelect" class="form-label">Korisnici</label>
+                    <select id="userSelect" class="form-select">
+                        <option value="">Svi korisnici</option>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.Id">@user.Name @user.Surname</option>
+                        }
+                    </select>
+                </div>
 
-    <div class="col-md">
-        <label for="projectSelect" class="form-label">Projekti</label>
-        <select id="projectSelect" class="form-select">
-            <option value="">Svi projekti</option>
-            @foreach (var project in projects)
-            {
-                <option value="@project.Id">@project.Name</option>
-            }
-        </select>
-    </div>
-    <div class="col-md">
-        <label for="fromDate" class="form-label">Od datuma</label>
-        <input id="fromDate" type="datetime-local" class="form-control" />
-    </div>
+                <div class="col-md">
+                    <label for="projectSelect" class="form-label">Projekti</label>
+                    <select id="projectSelect" class="form-select" tabindex="projectId" @bind="projectId">
+                        <option value="">Svi projekti</option>
+                        @foreach (var project in projects)
+                        {
+                            <option value="@project.Id">@project.Name</option>
+                        }
+                    </select>
+                </div>
 
-    <div class="col-md">
-        <label for="toDate" class="form-label">Do datuma</label>
-        <input id="toDate" type="datetime-local" class="form-control" />
-    </div>
-</div>
+                <div class="col-md">
+                    <label for="fromDate" class="form-label">Od datuma</label>
+                    <input id="fromDate" type="datetime-local" class="form-control" @bind="startDate" />
+                </div>
 
-<div class="col-md-3 mb-4">
-    <div class="card text-bg-light">
-        <div class="card-body">
-            <h5 class="card-title">Ukupni radni sati</h5>
-            <p class="card-text display-6">@totalWorkHours</p>
+                <div class="col-md">
+                    <label for="toDate" class="form-label">Do datuma</label>
+                    <input id="toDate" type="datetime-local" class="form-control" @bind="endDate" />
+                </div>
+
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary" @onclick="GetChartData">
+                        Pretraži
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+@if (showChart)
+{
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card text-bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Ukupno radno vrijeme na projektu</h5>
+                    <p class="card-text display-6">@string.Format("{0:%d}d {0:hh\\:mm\\:ss}", totalWorkHours)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9 mb-3">
+            <MudPaper Class="doc-section-component-container p-3">
+                <MudChart ChartType="ChartType.Line"
+                          ChartSeries="@series"
+                          XAxisLabels="@xAsisLabelsArray"
+                          Width="100%"
+                          Height="450px"
+                          ChartOptions="@options" />
+            </MudPaper>
+        </div>
+    </div>
+}
+
 @code {
     private List<UserDTO> users = new();
-    private List<ProjectDTO> projects = new();
-    private List<WorkSessionDTO> workSessions = new();
+    private List<ProjectDTO> projects = new();    
     private TimeSpan totalWorkHours;
+
+    private int projectId;
+    private DateOnly startDate = new DateOnly(2025, 6, 16);   //DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly endDate = new DateOnly(2025, 6, 22);     //DateOnly.FromDateTime(DateTime.Today);
+    private readonly ChartOptions options = new();
+
+    private Boolean showChart = false;
+
+    private List<WorkSessionDTO> workSessions = new();
+    private List<ChartSeries> series = new();
+    private HashSet<string> xAsisLabels = new();
+    private string[] xAsisLabelsArray; 
 
     protected override async Task OnInitializedAsync()
     {
         users = await userService.GetAllAsync();
         projects = await projectService.GetAllActive(true);
-        GetTotalWorkHours();
     }
 
-    private async void GetTotalWorkHours()
+    private async Task GetChartData()
     {
+        showChart = true;
+        series.Clear();
+        options.YAxisTicks = 12;
+        totalWorkHours = TimeSpan.Zero;
+
+        xAsisLabels = Enumerable.Range(0, (endDate.DayNumber - startDate.DayNumber + 1))
+            .Select(day => startDate.AddDays(day).ToString())
+            .ToHashSet();
+
+        xAsisLabelsArray = xAsisLabels.OrderBy(d => d).ToArray();
+
         foreach (var user in users)
         {
-            var workSession = await workSessionService.GetAllUserSessionsAsync(user.Id);
-            foreach (var ws in workSession)
+            var userSessions = await workSessionService
+                .GetAllUserSessionsByProjectBetweenDays(user.Id, projectId, startDate, endDate);
+
+            var timeByDate = new Dictionary<string, double>();
+            foreach (var dateLabel in xAsisLabels)
             {
-                totalWorkHours = totalWorkHours + (ws.EndTime - ws.StartTime); 
+                timeByDate[dateLabel] = 0;
             }
+
+            foreach (var session in userSessions)
+            {
+                var workDay = await workDayService.GetByIdAsync(session.WorkDayId);
+                if (workDay == null) continue;
+
+                var dateStr = workDay.WorkDate.ToString();
+                var duration = session.EndTime - session.StartTime;
+
+                if (timeByDate.ContainsKey(dateStr))
+                {
+                    timeByDate[dateStr] += duration.TotalHours; 
+                }
+
+                totalWorkHours += duration; 
+            }
+
+            var s = new ChartSeries
+            {
+                Name = $"{user.FullName}",
+                Data = xAsisLabelsArray.Select(date => timeByDate[date]).ToArray()
+            };
+
+            series.Add(s);
         }
+
         StateHasChanged();
     }
 }

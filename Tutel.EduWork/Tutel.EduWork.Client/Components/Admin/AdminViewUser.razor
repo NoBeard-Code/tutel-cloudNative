@@ -4,6 +4,8 @@
 @inject NavigationManager NavigationManager
 @inject IRoleService roleService
 @inject IUserService userService
+@inject IProjectService projectService
+@inject IWorkSessionService workSessionService
 
 <h3 class="mb-4">Detalji zaposlenika</h3>
 
@@ -13,7 +15,7 @@
 }
 else
 {
-    <div class="card mb-4 shadow-sm" style="max-width: 40rem;">
+    <div class="card mb-4" style="max-width: 40rem;">
         <div class="card-body">
             <h5 class="card-title">@user.Name @user.Surname</h5>
             <h6 class="card-subtitle mb-3 text-muted">@user.Email</h6>
@@ -65,6 +67,38 @@ else
                 <button class="btn btn-success me-2" @onclick="() => PromptLockoutChange(false)">Aktiviraj korisnika</button>
             }
         </div>
+    </div>
+}
+
+<h4 class="mb-3">Projekti</h4>
+
+@if (userProjects == null || userProjects.Count == 0)
+{
+    <div class="alert alert-warning">Ne postoje projekti za prikaz.</div>
+}
+else
+{
+    <div class="row row-cols-md-3 g-4">
+        @foreach (var project in userProjects)
+        {
+            <div class="col">
+                <div class="card mb-4" style="max-width: 40rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">@project.Name</h5>
+                        <p class="card-text">@project.Description</p>
+                        <p class="card-text">
+                            Ukupno vrijeme na projektu:@string.Format("{0:%d}d {0:hh\\:mm\\:ss}", projectTimeByProjectId[project.Id])
+                        </p>
+                        <span class="badge bg-primary me-2">
+                            @(project.IsActive ? "Aktivan" : "Neaktivan")
+                        </span>
+                        <span class="badge bg-primary me-2">
+                            @(project.IsBillable ? "Plaćen" : "Nije plaćen")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 }
 
@@ -124,6 +158,7 @@ else
     private UserDTO user;
     private List<string> roles = new();
     private List<IdentityRole> allRoles = new();
+    private List<ProjectDTO> userProjects = new();
 
     private string selectedRole;
     private bool showCreateRoleModal = false;
@@ -131,12 +166,20 @@ else
     private bool showLockoutConfirmDialog = false;
     private bool newLockoutState;
 
+    private Dictionary<int, TimeSpan> projectTimeByProjectId = new();
 
     protected override async Task OnInitializedAsync()
     {
         user = await userService.GetUserAsync(UserId);
         roles = (await userService.GetUserRolesAsync(UserId)).ToList();
         allRoles = (await roleService.GetAllRolesAsync()).ToList();
+        userProjects = await projectService.GetAllProjectsByUser(UserId);
+
+        foreach (var project in userProjects)
+        {
+            var time = await GetTotalProjectTime(project.Id);
+            projectTimeByProjectId[project.Id] = time;
+        }
     }
 
     private async Task AddRole()
@@ -203,4 +246,15 @@ else
         showLockoutConfirmDialog = false;
     }
 
+    private async Task<TimeSpan> GetTotalProjectTime(int projectId)
+    {
+        TimeSpan totalTime = new TimeSpan();
+        var workSessions = await workSessionService.GetAllUserSessionsByProjectAsync(user.Id, projectId);
+        foreach (var workSession in workSessions)
+        {
+            var timeDiff = workSession.EndTime - workSession.StartTime;
+            totalTime = totalTime + timeDiff;
+        }
+        return totalTime;
+    }
 }

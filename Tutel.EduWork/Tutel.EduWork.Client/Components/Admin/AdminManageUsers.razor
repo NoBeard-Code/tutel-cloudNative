@@ -2,15 +2,16 @@
 
 <h2 class="mb-4">Pregled zaposlenika</h2>
 
-<div class="row">
-    <div class="mb-3 d-flex align-items-center">
-        <input type="text" class="form-control w-25" placeholder="Pretraži po imenu..." @bind="searchTerm" @bind:event="oninput" />
-    </div>
-    <div class="mb-3 d-flex align-items-center">
-        <button class="btn btn-primary btn-sm me-2" @onclick="NavigateToAddNewUser">Dodaj novog zaposlenika</button>
+<div class="row mb-3">
+    <div class="d-flex align-items-center gap-3">
+        <input type="text" class="form-control w-auto" placeholder="Pretraži po imenu..."
+               @bind="searchTerm" @bind:event="oninput" style="min-width: 250px;" />
+
+        <button class="btn btn-primary btn-sm" @onclick="NavigateToAddNewUser">Dodaj novog zaposlenika</button>
+
+        <button class="btn btn-outline-secondary btn-sm" @onclick="ClearHighlights">Očisti</button>
     </div>
 </div>
-
 
 <table class="table table-bordered">
     <thead class="table-light">
@@ -23,8 +24,8 @@
     <tbody>
         @foreach (var user in FilteredUsers)
         {
-            <tr>
-                <td>@user.Name @user.Surname</td>
+            <tr class="@GetRowClass(user)">
+                <td>@user.FullName</td>
                 <td>@user.Email</td>
                 <td>
                     <button class="btn btn-primary btn-sm me-2" @onclick="() => NavigateToViewUser(user.Id)">Pregled</button>
@@ -36,7 +37,7 @@
 
 @code {
     [Parameter] public List<UserDTO> Users { get; set; } = new();
-
+    [Parameter] public List<string> HighlightedUsers { get; set; } = new();
     private string searchTerm = string.Empty;
 
     private IEnumerable<UserDTO> FilteredUsers => string.IsNullOrWhiteSpace(searchTerm)
@@ -53,4 +54,16 @@
         NavigationManager.NavigateTo("/adduser", forceLoad: true);
     }
 
+    private string GetRowClass(UserDTO user)
+    {
+        return HighlightedUsers.Any(id =>
+            string.Equals(id.Trim(), user.Id.Trim(), StringComparison.OrdinalIgnoreCase))
+            ? "table-danger"
+            : string.Empty;
+    }
+
+    private void ClearHighlights()
+    {
+        HighlightedUsers.Clear();
+    }
 }
