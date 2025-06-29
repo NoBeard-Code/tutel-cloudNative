@@ -17,7 +17,7 @@ else
 {
     <div class="card mb-4" style="max-width: 40rem;">
         <div class="card-body">
-            <h5 class="card-title">@user.Name @user.Surname</h5>
+            <h5 class="card-title">@user.FullName</h5>
             <h6 class="card-subtitle mb-3 text-muted">@user.Email</h6>
 
             <div class="mb-4">
@@ -70,7 +70,12 @@ else
     </div>
 }
 
-<h4 class="mb-3">Projekti</h4>
+<div class="d-flex align-items-center gap-3 mb-3">
+    <h4 class="mb-0">Projekti</h4>
+    <button class="btn btn-success" @onclick="OpenProjectAssignModal">
+        Dodaj projekt
+    </button>
+</div>
 
 @if (userProjects == null || userProjects.Count == 0)
 {
@@ -82,19 +87,30 @@ else
         @foreach (var project in userProjects)
         {
             <div class="col">
-                <div class="card mb-4" style="max-width: 40rem;">
-                    <div class="card-body">
-                        <h5 class="card-title">@project.Name</h5>
-                        <p class="card-text">@project.Description</p>
-                        <p class="card-text">
-                            Ukupno vrijeme na projektu:@string.Format("{0:%d}d {0:hh\\:mm\\:ss}", projectTimeByProjectId[project.Id])
+                <div class="card shadow-sm rounded-4 h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-semibold mb-2">@project.Name</h5>
+                        <p class="text-muted mb-3">@project.Description</p>
+
+                        <p class="mb-2">
+                            <strong>Ukupno vrijeme:</strong><br />
+                            @string.Format("{0:%d}d {0:hh\\:mm\\:ss}", projectTimeByProjectId[project.Id])
                         </p>
-                        <span class="badge bg-primary me-2">
-                            @(project.IsActive ? "Aktivan" : "Neaktivan")
-                        </span>
-                        <span class="badge bg-primary me-2">
-                            @(project.IsBillable ? "Plaćen" : "Nije plaćen")
-                        </span>
+
+                        <div class="mb-3">
+                            <span class="badge bg-primary me-2">
+                                @(project.IsActive ? "Aktivan" : "Neaktivan")
+                            </span>
+                            <span class="badge bg-primary">
+                                @(project.IsBillable ? "Plaćen" : "Nije plaćen")
+                            </span>
+                        </div>
+
+                        <div class="mt-auto">
+                            <button class="btn btn-outline-danger btn-sm" @onclick="() => RemoveUserFromProject(project.Id)">
+                                Ukloni korisnika sa projekta
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -129,7 +145,6 @@ else
     </div>
 }
 
-
 @if (showCreateRoleModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
@@ -145,6 +160,33 @@ else
                 <div class="modal-footer">
                     <button class="btn btn-secondary" @onclick="CloseCreateRoleModal">Zatvori</button>
                     <button class="btn btn-primary" @onclick="CreateRole" disabled="@string.IsNullOrWhiteSpace(newRoleName)">Spremi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showProjectAssignModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dodaj korisnika na projekt</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseProjectAssignModal"></button>
+                </div>
+                <div class="modal-body">
+                    <select class="form-select" @bind="selectedProjectId">
+                        <option value="0">-- Odaberi projekt --</option>
+                        @foreach (var project in availableProjects.Where(project => !userProjects.Any(up => up.Id == project.Id)))
+                        {
+                            <option value="@project.Id">@project.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseProjectAssignModal">Odustani</button>
+                    <button class="btn btn-primary" @onclick="AddUserOnProject">Dodaj</button>
                 </div>
             </div>
         </div>
@@ -167,6 +209,10 @@ else
     private bool newLockoutState;
 
     private Dictionary<int, TimeSpan> projectTimeByProjectId = new();
+
+    private bool showProjectAssignModal = false;
+    private List<ProjectDTO> availableProjects = new();
+    private int selectedProjectId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -257,4 +303,46 @@ else
         }
         return totalTime;
     }
+
+    private async Task RemoveUserFromProject(int projectId)
+    {
+        await projectService.RemoveUserFromProject(user.Id, projectId);
+        userProjects = await projectService.GetAllProjectsByUser(UserId);
+        StateHasChanged();
+    }
+
+    private async void OpenProjectAssignModal()
+    {
+        availableProjects = await projectService.GetAllActive(true);
+        selectedProjectId = 0;
+        showProjectAssignModal = true;
+        StateHasChanged();
+    }
+
+    private void CloseProjectAssignModal()
+    {
+        showProjectAssignModal = false;
+    }
+
+    private async Task AddUserOnProject()
+    {
+        if (selectedProjectId != 0)
+        {
+            await projectService.AddUserOnProject(user.Id, selectedProjectId);
+            userProjects = await projectService.GetAllProjectsByUser(UserId);
+
+            foreach (var project in userProjects)
+            {
+                if (!projectTimeByProjectId.ContainsKey(project.Id))
+                {
+                    var time = await GetTotalProjectTime(project.Id);
+                    projectTimeByProjectId[project.Id] = time;
+                }
+            }
+
+            showProjectAssignModal = false;
+            StateHasChanged();
+        }
+    }
+
 }
