@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 using Tutel.EduWork.Components;
 using Tutel.EduWork.Components.Account;
 using Tutel.EduWork.Data;
@@ -54,9 +55,11 @@ namespace Tutel.EduWork
             #endregion
 
             #region SEED
-
             builder.Services.AddTransient<DataSeeder>();
+            #endregion
 
+            #region MUD
+            builder.Services.AddMudServices();
             #endregion
 
             var app = builder.Build();
