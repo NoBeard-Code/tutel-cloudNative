@@ -12,9 +12,9 @@
             <h5 class="mb-3">Filtriraj podatke</h5>
             <div class="row g-3 align-items-end">
                 <div class="col-md">
-                    <label for="userSelect" class="form-label">Korisnici</label>
+                    <label for="userSelect" class="form-label">Zaposlenici</label>
                     <select id="userSelect" class="form-select" @bind="selectedUserId">
-                        <option value="">Svi korisnici</option>
+                        <option value="">Svi zaposlenici</option>
                         @foreach (var user in users)
                         {
                             <option value="@user.Id">@user.Name @user.Surname</option>
@@ -57,25 +57,45 @@
 @if (showChart)
 {
     <div class="row">
-        <div class="col-md-3 mb-3">
-            <div class="card text-bg-light">
-                <div class="card-body">
-                    <h5 class="card-title">Ukupno radno vrijeme na projektu</h5>
-                    <p class="card-text display-6">@string.Format("{0:%d}d {0:hh\\:mm\\:ss}", totalWorkHours)</p>
+        <div class="col-12">
+            <MudPaper Class="p-4 d-flex flex-column flex-md-row gap-4 align-items-start justify-content-center">
+
+                <div>
+                    <MudText Typo="Typo.h6" Class="mb-2 text-center">Omjer utrošenih sati po zaposleniku</MudText>
+                    <MudCard Class="p-4" Style="width: 320px; height: 320px;">
+                        <MudChart ChartType="ChartType.Donut"
+                                  Width="100%"
+                                  Height="100%"
+                                  InputData="@data"
+                                  InputLabels="@labels">
+                            <CustomGraphics>
+                                <text class="donut-inner-text" x="50%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="16">
+                                    Ukupno vrijeme
+                                </text>
+                                <text class="donut-inner-text" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="22">
+                                    @string.Format("{0:%d}d {0:hh\\:mm}", totalWorkHours)
+                                </text>
+                            </CustomGraphics>
+                        </MudChart>
+                    </MudCard>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-9 mb-3">
-            <MudPaper Class="doc-section-component-container p-3">
-                <MudChart ChartType="ChartType.Line"
-                          ChartSeries="@series"
-                          XAxisLabels="@xAsisLabelsArray"
-                          Width="100%"
-                          Height="420px"
-                          ChartOptions="@options" />
+
+                <div class="flex-grow-1">
+                    <MudText Typo="Typo.h6" Class="mb-2 text-center">Radno vrijeme zaposlenika po danima</MudText>
+                    <MudPaper Class="p-4">
+                        <MudChart ChartType="ChartType.Line"
+                                  ChartSeries="@series"
+                                  XAxisLabels="@xAsisLabelsArray"
+                                  Width="100%"
+                                  Height="400px"
+                                  ChartOptions="@options" />
+                    </MudPaper>
+                </div>
+
             </MudPaper>
         </div>
     </div>
+
 }
 
 @code {
@@ -88,13 +108,15 @@
     private DateOnly endDate = new DateOnly(2025, 6, 22);     //DateOnly.FromDateTime(DateTime.Today);
     private readonly ChartOptions options = new();
 
-    private Boolean showChart = false;
+    private bool showChart = false;
 
-    private List<WorkSessionDTO> workSessions = new();
     private List<ChartSeries> series = new();
     private HashSet<string> xAsisLabels = new();
     private string[] xAsisLabelsArray; 
     private string? selectedUserId = null;
+
+    private string[] labels = Array.Empty<string>();
+    private double[] data = Array.Empty<double>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -106,8 +128,8 @@
     {
         showChart = true;
         series.Clear();
-        options.YAxisTicks = 12;
         totalWorkHours = TimeSpan.Zero;
+        options.YAxisTicks = 12;
 
         xAsisLabels = Enumerable.Range(0, (endDate.DayNumber - startDate.DayNumber + 1))
             .Select(day => startDate.AddDays(day).ToString())
@@ -119,6 +141,8 @@
             ? users.Where(u => u.Id == selectedUserId)
             : users;
 
+        var userTimeMap = new Dictionary<string, double>(); 
+
         foreach (var user in filteredUsers)
         {
             var userSessions = await workSessionService
@@ -129,6 +153,8 @@
             {
                 timeByDate[dateLabel] = 0;
             }
+
+            double totalUserHours = 0;
 
             foreach (var session in userSessions)
             {
@@ -143,8 +169,11 @@
                     timeByDate[dateStr] += duration.TotalHours;
                 }
 
+                totalUserHours += duration.TotalHours;
                 totalWorkHours += duration;
             }
+
+            userTimeMap[user.FullName] = totalUserHours;
 
             var s = new ChartSeries
             {
@@ -155,7 +184,11 @@
             series.Add(s);
         }
 
+        labels = userTimeMap.Keys.ToArray();
+        data = userTimeMap.Values.ToArray();
+
         StateHasChanged();
     }
+
 
 }
