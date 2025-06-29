@@ -1,0 +1,13 @@
+﻿<a href="#" @onclick="@(() => GoToWorkSessions(WorkDayId))">Kliknite ovdje za dodavanje radnih sesija.</a>
+
+@inject NavigationManager NavigationManager;
+@code {
+
+    [Parameter]
+    public int WorkDayId { get; set; }
+
+    private void GoToWorkSessions(int workDayId)
+    {
+        NavigationManager.NavigateTo($"/worksessions/{workDayId}");
+    }
+}
