@@ -1,0 +1,20 @@
+﻿.add-workDay-Button 
+{
+    border: 2px dashed #6b6b6b;
+    color: #6b6b6b;
+    background-color: transparent;
+    border-radius: 15px;
+    padding: 17px 42px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.goTo-workDay-Button {
+    border: 2px dashed #0d6efd;
+    color: #fff;
+    background-color: #0d6efd;
+    border-radius: 15px;
+    padding: 17px 42px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
