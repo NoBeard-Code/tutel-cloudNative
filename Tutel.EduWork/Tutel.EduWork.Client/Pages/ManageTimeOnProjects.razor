@@ -13,19 +13,20 @@
             <div class="row g-3 align-items-end">
                 <div class="col-md">
                     <label for="userSelect" class="form-label">Korisnici</label>
-                    <select id="userSelect" class="form-select">
+                    <select id="userSelect" class="form-select" @bind="selectedUserId">
                         <option value="">Svi korisnici</option>
                         @foreach (var user in users)
                         {
                             <option value="@user.Id">@user.Name @user.Surname</option>
                         }
                     </select>
+
                 </div>
 
                 <div class="col-md">
                     <label for="projectSelect" class="form-label">Projekti</label>
                     <select id="projectSelect" class="form-select" tabindex="projectId" @bind="projectId">
-                        <option value="">Svi projekti</option>
+                        <option value="">-- Odaberi projekt --</option>
                         @foreach (var project in projects)
                         {
                             <option value="@project.Id">@project.Name</option>
@@ -70,7 +71,7 @@
                           ChartSeries="@series"
                           XAxisLabels="@xAsisLabelsArray"
                           Width="100%"
-                          Height="450px"
+                          Height="420px"
                           ChartOptions="@options" />
             </MudPaper>
         </div>
@@ -93,6 +94,7 @@
     private List<ChartSeries> series = new();
     private HashSet<string> xAsisLabels = new();
     private string[] xAsisLabelsArray; 
+    private string? selectedUserId = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -113,7 +115,11 @@
 
         xAsisLabelsArray = xAsisLabels.OrderBy(d => d).ToArray();
 
-        foreach (var user in users)
+        var filteredUsers = !string.IsNullOrWhiteSpace(selectedUserId)
+            ? users.Where(u => u.Id == selectedUserId)
+            : users;
+
+        foreach (var user in filteredUsers)
         {
             var userSessions = await workSessionService
                 .GetAllUserSessionsByProjectBetweenDays(user.Id, projectId, startDate, endDate);
@@ -134,10 +140,10 @@
 
                 if (timeByDate.ContainsKey(dateStr))
                 {
-                    timeByDate[dateStr] += duration.TotalHours; 
+                    timeByDate[dateStr] += duration.TotalHours;
                 }
 
-                totalWorkHours += duration; 
+                totalWorkHours += duration;
             }
 
             var s = new ChartSeries
@@ -151,4 +157,5 @@
 
         StateHasChanged();
     }
+
 }

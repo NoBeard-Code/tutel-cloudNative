@@ -98,10 +98,10 @@ else
                         </p>
 
                         <div class="mb-3">
-                            <span class="badge bg-primary me-2">
+                            <span class="badge bg-@(project.IsActive ? "info" : "warning") me-2">
                                 @(project.IsActive ? "Aktivan" : "Neaktivan")
                             </span>
-                            <span class="badge bg-primary">
+                            <span class="badge bg-@(project.IsBillable ? "success" : "danger")">
                                 @(project.IsBillable ? "Plaćen" : "Nije plaćen")
                             </span>
                         </div>
