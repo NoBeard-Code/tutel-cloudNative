@@ -1,0 +1,21 @@
+﻿.workSession-element {
+    border: 1px solid #cacaca;
+    border-radius: 8px;
+}
+
+.titleText {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.timeRangeText {
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.subjectText {
+    font-size: 1.1rem;
+}
+
+.workSession-editButton {
+}
