@@ -11,9 +11,4 @@
     <PackageReference Include="NSubstitute" Version="5.3.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Tutel.EduWork.BusinessLayer\Tutel.EduWork.BusinessLayer.csproj" />
-    <ProjectReference Include="..\Tutel.EduWork.DataAccessLayer\Tutel.EduWork.DataAccessLayer.csproj" />
-  </ItemGroup>
-
 </Project>
