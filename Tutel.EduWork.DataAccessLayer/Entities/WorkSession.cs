@@ -14,8 +14,7 @@ namespace Tutel.EduWork.DataAccessLayer.Entities
         public bool IsOvertime { get; set; }
         [Required]
         public int TypeId { get; set; }
-        [Required]
-        public int ProjectId { get; set; }
+        public int? ProjectId { get; set; }
         [Required]
         public int WorkDayId { get; set; }
         [ForeignKey(nameof(TypeId))]

@@ -1,0 +1,174 @@
+﻿@page "/worksessions/{WorkDayId:int}"
+@attribute [Authorize]
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@using Tutel.EduWork.BusinessLayer.Abstractions
+@using Tutel.EduWork.BusinessLayer.DTOs
+
+@inject IWorkSessionService workSessionService
+@inject IProjectService     projectService
+@inject NavigationManager   NavigationManager
+
+<h3>Dodaj radnu sesiju</h3>
+
+@if (isLoading)
+{
+    <p>Učitavanje...</p>
+}
+else
+{
+    <EditForm Model="@session" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator/>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Početak</label>
+                <input type="time" class="form-control" @bind="session.StartTime" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Kraj</label>
+                <input type="time" class="form-control" @bind="session.EndTime" />
+            </div>
+
+
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="form-check">
+                    <InputCheckbox class="form-check-input"
+                                   @bind-Value="session.IsOvertime" />
+                    <label class="form-check-label">Prekovremeni</label>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Vrsta rada</label>
+                <select class="form-select"
+                        value="@session.TypeId"
+                        @onchange="OnTypeChanged">
+                    <option value="">-- Odaberi vrstu --</option>
+                    @foreach (var t in types)
+                    {
+                        <option value="@t.Id">@t.Name</option>
+                    }
+                </select>
+                <ValidationMessage For="@(() => session.TypeId)" />
+            </div>
+
+            @if (RequiresProject)
+            {
+                <div class="col-md-6">
+                    <label class="form-label">Projekt</label>
+                    <select class="form-select" @bind="session.ProjectId">
+                        <option value="">-- Odaberi projekt --</option>
+                        @foreach (var p in projects)
+                        {
+                            <option value="@p.Id">@p.Name</option>
+                        }
+                    </select>
+                    <ValidationMessage For="@(() => session.ProjectId)" />
+                </div>
+            }
+        </div>
+
+        <button type="submit" class="btn btn-success mt-3">Spremi</button>
+        <button type="button"
+                class="btn btn-secondary mt-3 ms-2"
+                @onclick="GoBack">Odustani</button>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert @alertClass mt-3" role="alert">@message</div>
+        }
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int WorkDayId { get; set; }
+
+    private readonly WorkSessionDTO session = new();
+
+    private List<WorkSessionTypeDTO> types    = new();
+    private List<ProjectDTO>         projects = new();
+
+    private bool   isLoading  = true;
+    private string message    = string.Empty;
+    private string alertClass = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        session.WorkDayId = WorkDayId;
+
+        types    = await workSessionService.GetAllTypesAsync();
+        projects = await projectService.GetAllAsync();
+
+        isLoading = false;
+    }
+
+    private bool RequiresProject
+    {
+        get
+        {
+            var selectedType = types.FirstOrDefault(t => t.Id == session.TypeId);
+            if (selectedType == null)
+                return false;
+
+            return !string.Equals(selectedType.Name, "Pauza", StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    private void OnTypeChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var id))
+            session.TypeId = id;
+
+        if (!RequiresProject)
+            session.ProjectId = null;
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (session.StartTime >= session.EndTime)
+        {
+            ShowError("Vrijeme početka mora biti prije kraja.");
+            return;
+        }
+
+        if (session.TypeId == 0)
+        {
+            ShowError("Morate odabrati vrstu rada.");
+            return;
+        }
+
+        if (RequiresProject && (session.ProjectId == null || session.ProjectId == 0))
+        {
+            ShowError("Za odabranu vrstu rada morate odabrati projekt.");
+            return;
+        }
+
+        if (RequiresProject && session.ProjectId == 0)
+        {
+            ShowError("Za odabranu vrstu rada morate odabrati projekt.");
+            return;
+        }
+
+        try
+        {
+            await workSessionService.AddAsync(session);
+            NavigationManager.NavigateTo($"/");
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Greška: {ex.Message}");
+        }
+    }
+
+    private void GoBack() =>
+        NavigationManager.NavigateTo($"/");
+
+    private void ShowError(string msg)
+    {
+        message    = msg;
+        alertClass = "alert-danger";
+    }
+}
