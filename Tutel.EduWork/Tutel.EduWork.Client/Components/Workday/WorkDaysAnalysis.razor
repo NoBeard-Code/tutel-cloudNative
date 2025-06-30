@@ -1,0 +1,182 @@
+﻿@using System.Globalization
+
+<div class="container mt-5 border rounded">
+    <div class="row pt-2 mb-1">
+        <div class="col-lg-3 mb-2 mb-lg-0" hidden="@(currentDisplayState != DisplayState.Dan)">
+            <input class="form-control" type="date" value=@startDate.ToString("yyyy-MM-dd")
+                   @onchange="@(
+                   async (ChangeEventArgs args) =>
+                   {
+                       startDate = DateOnly.Parse(args.Value.ToString() ?? DateTime.Now.ToString());
+                       if (startDate > endDate) startDate = endDate;
+                       await UpdateProjectSessionsInfo();
+                   })" />
+        </div>
+        <div class="col-lg-3 mb-2 mb-lg-0" hidden="@(currentDisplayState != DisplayState.Dan)">
+            <input class="form-control" type="date" value=@endDate.ToString("yyyy-MM-dd")
+            @onchange="@(
+            async (ChangeEventArgs args) =>
+            {
+                endDate = DateOnly.Parse(args.Value.ToString() ?? DateTime.Now.ToString());
+                if (endDate < startDate) endDate = startDate;
+                await UpdateProjectSessionsInfo();
+            })" />
+        </div>
+        <div class="col-md-6 mb-2 mb-lg-0" hidden="@(currentDisplayState != DisplayState.Tjedan)">
+            <input class="form-control" type="week" value=@week @onchange=OnWeekInputChanged />
+        </div>
+        <div class="col-md-6 mb-2 mb-lg-0" hidden="@(currentDisplayState != DisplayState.Mjesec)">
+            <input class="form-control" type="month" value=@month @onchange=OnMonthInputChanged />
+        </div>
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="col-md-6">
+                    <select class="form-control" @bind=currentDisplayState>
+                        @foreach (var state in Enum.GetValues<DisplayState>())
+                        {
+                            <option value=@state>@state</option> // make this also update the table immediately
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Naziv projekta</th>
+                    <th>Broj sati(prekovremenih)</th>
+                    <th>Prosječan broj sati dnevno</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var projectSessionInfo in projectSessionsInfoAggregates)
+                {
+                    <tr>
+                        <td>@projectSessionInfo.ProjectName</td>
+                        <td>@($"{projectSessionInfo.HoursWorked}({projectSessionInfo.HoursOvertime})")</td>
+                        <td>@projectSessionInfo.AverageHours</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@inject IServiceScopeFactory serviceScopeFactory;
+@code {
+
+    [Parameter]
+    public required string UserId { get; set; }
+
+    private DateOnly startDate;
+    private DateOnly endDate;
+    private string week;
+    private string month;
+
+    private DisplayState currentDisplayState;
+
+    enum DisplayState
+    {
+        Dan,
+        Tjedan,
+        Mjesec
+    }
+
+    List<ProjectDTO> userProjects = new List<ProjectDTO>();
+    List<WorkSessionDTO> sessionsOnProject = new List<WorkSessionDTO>();
+    List<ProjectSessionsInfoAggregate> projectSessionsInfoAggregates = new List<ProjectSessionsInfoAggregate>();
+
+    protected override void OnInitialized()
+    {
+        endDate = DateOnly.FromDateTime(DateTime.Now);
+        startDate = endDate.AddDays(-7);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateProjectSessionsInfo();
+    }
+
+    private async Task OnWeekInputChanged(ChangeEventArgs args)
+    {
+        if (args.Value != null && args.Value.ToString() != null)
+        {
+            week = args.Value.ToString(); // yyyy-Www
+            string[] weekStringComponents = week.Split("-W");
+            int yearNumber = int.Parse(weekStringComponents[0]);
+            int weekNumber = int.Parse(weekStringComponents[1]);
+            DateTime date = ISOWeek.ToDateTime(yearNumber, weekNumber, DayOfWeek.Monday);
+            startDate = DateOnly.FromDateTime(date);
+            endDate = DateOnly.FromDateTime(date.AddDays(6));
+        }
+        await UpdateProjectSessionsInfo();
+    }
+
+    private async Task OnMonthInputChanged(ChangeEventArgs args)
+    {
+        if (args.Value != null && args.Value.ToString() != null)
+        {
+            month = args.Value.ToString(); // yyyy-mm
+            string[] monthStringComponents = month.Split("-");
+            int yearNumber = int.Parse(monthStringComponents[0]);
+            int monthNumber = int.Parse(monthStringComponents[1]);
+            DateTime firstDay = new DateTime(yearNumber, monthNumber, 1);
+            DateTime lastDay = firstDay.AddMonths(1).AddDays(-1);
+            startDate = DateOnly.FromDateTime(firstDay);
+            endDate = DateOnly.FromDateTime(lastDay);
+        }
+        await UpdateProjectSessionsInfo();
+    }
+
+    private async Task UpdateProjectSessionsInfo()
+    {
+        projectSessionsInfoAggregates.Clear();
+        using (var scope = serviceScopeFactory.CreateScope())
+        {
+            var projectService = scope.ServiceProvider.GetRequiredService<IProjectService>();
+            var workSessionService = scope.ServiceProvider.GetRequiredService<IWorkSessionService>();
+            userProjects = await projectService.GetAllProjectsByUser(UserId);
+            WorkSessionDTO previous;
+            int hoursInDay = 0;
+            foreach (var project in userProjects)
+            {
+                int hoursWorked = 0;
+                int hoursOvertime = 0;
+
+                sessionsOnProject = await workSessionService.GetAllUserSessionsByProjectBetweenDays(
+                    UserId,
+                    project.Id, startDate, endDate);
+                if (sessionsOnProject.Count == 0) break;
+                previous = sessionsOnProject.First();
+
+                foreach (var session in sessionsOnProject)
+                {
+                    if (session != sessionsOnProject.First())
+                    {
+                        if (session.WorkDayId != previous.WorkDayId)
+                        {
+                            hoursInDay = 0;
+                        }
+                    }
+                    hoursWorked += session.EndTime.Hour - session.StartTime.Hour;
+                    hoursInDay += session.EndTime.Hour - session.StartTime.Hour;
+                    if (hoursInDay > 8) hoursOvertime += (hoursInDay - 8);
+                    previous = session;
+                }
+                int dayDifference = (endDate.DayNumber - startDate.DayNumber == 0) ? 1 : endDate.DayNumber - startDate.DayNumber;
+                projectSessionsInfoAggregates.Add(new ProjectSessionsInfoAggregate(project.Name, hoursWorked, hoursOvertime,
+                    hoursWorked / dayDifference));
+            }
+        }
+    }
+
+    private record ProjectSessionsInfoAggregate(string projectName, int hoursWorked, int hoursOvertime, float averageHours)
+    {
+        public string ProjectName { get; } = projectName;
+        public int HoursWorked { get; } = hoursWorked;
+        public int HoursOvertime { get; } = hoursOvertime;
+        public float AverageHours { get; } = averageHours;
+    }
+}
