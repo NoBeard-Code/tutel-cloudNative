@@ -29,7 +29,7 @@ namespace Tutel.EduWork.Tests
             var mockProjects = new List<ProjectDTO> { 
                 new ProjectDTO { Id = 1, Name = "Projekt A", Description = "Nije projekt A", IsActive = true, IsBillable = true},
                 new ProjectDTO { Id = 2, Name = "Projekt B", Description = "Nije projekt B", IsActive = true, IsBillable = false}
-            };
+                };
 
             var mockLateLogIns = new List<string> { "abc-123" };
 
