@@ -5,13 +5,15 @@
 @using Tutel.EduWork.BusinessLayer.Abstractions
 @using Tutel.EduWork.BusinessLayer.DTOs
 @using Tutel.EduWork.BusinessLayer.Exceptions
+@using Tutel.EduWork.Client.Components.WorkSession
 @using Tutel.EduWork.Client.Components.Workday;
 @using Tutel.EduWork.DataAccessLayer.Entities
 <PageTitle>Home</PageTitle>
 
 <AuthorizeView>
     <Authorized>
-        <BetterAddWorkday UserId=@userId></BetterAddWorkday>
+        <BetterAddWorkday UserId=@userId OnWorkdayChanged=HandleWorkdayChanged></BetterAddWorkday>
+        <WorkSessionsOverview UserId=@userId Date=@selectedDate></WorkSessionsOverview>
         <WorkDaysAnalysis UserId=@userId></WorkDaysAnalysis>
     </Authorized>
     <NotAuthorized>
@@ -19,15 +21,23 @@
     </NotAuthorized>
 </AuthorizeView>
 
+
+
 @inject AuthenticationStateProvider authenticationStateProvider;
 @code
 {
     private string? userId;
+    private DateOnly selectedDate;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+    }
+
+    void HandleWorkdayChanged(DateOnly date)
+    {
+        selectedDate = date;
     }
 }
