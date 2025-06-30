@@ -178,5 +178,72 @@ namespace Tutel.EduWork.Tests
 
             Assert.Throws<Bunit.ElementNotFoundException>(() => component.Find("select"));
         }
+
+        /// <summary>
+        /// Click on button on page TimeOffList should redirect to page for AddingTimeOff.
+        /// </summary>
+        [Fact]
+        public void ClickingAddButton_NavigatesToAddTimeOff()
+        {
+            RegisterTimeOffMocks();
+            SetAuthenticatedUser(adminUserId, isAdmin: true);
+
+            var navMan = Services.GetRequiredService<FakeNavigationManager>();
+            var comp = RenderComponent<TimeOffList>();
+
+            comp.Find("button.btn-success").Click();
+
+            Assert.Contains("addtimeoff", navMan.Uri.Replace(navMan.BaseUri, ""));
+        }
+
+        /// <summary>
+        /// Clicking the Edit button in TimeOffList should navigate to 'editsickleave' or 'editvacation' page.
+        /// Assumes there is at least one sick leave and one vacation rendered with Edit buttons.
+        /// </summary>
+        [Fact]
+        public void ClickingEditSickLeaveButton_NavigatesToEditSickLeave()
+        {
+            RegisterTimeOffMocks();
+            SetAuthenticatedUser(adminUserId, isAdmin: true);
+
+            var navMan = Services.GetRequiredService<FakeNavigationManager>();
+            var comp = RenderComponent<TimeOffList>();
+
+            var editButtons = comp.FindAll("button.btn-primary");
+
+            var sickLeaveEditButton = editButtons.FirstOrDefault(btn =>
+                btn.ParentElement.ParentElement.InnerHtml.Contains("Bolovanje"));
+
+            Assert.NotNull(sickLeaveEditButton);
+
+            sickLeaveEditButton!.Click();
+
+            Assert.Contains("editsickleave", navMan.Uri.Replace(navMan.BaseUri, ""));
+        }
+
+        /// <summary>
+        /// Clicking the Edit button in TimeOffList should navigate to 'editvacation' page.
+        /// Assumes there is at least one vacation rendered with Edit button.
+        /// </summary>
+        [Fact]
+        public void ClickingEditVacationButton_NavigatesToEditVacation()
+        {
+            RegisterTimeOffMocks();
+            SetAuthenticatedUser(adminUserId, isAdmin: true);
+
+            var navMan = Services.GetRequiredService<FakeNavigationManager>();
+            var comp = RenderComponent<TimeOffList>();
+
+            var editButtons = comp.FindAll("button.btn-primary");
+
+            var vacationEditButton = editButtons.FirstOrDefault(btn =>
+                btn.ParentElement.ParentElement.InnerHtml.Contains("Godišnji"));
+
+            Assert.NotNull(vacationEditButton);
+
+            vacationEditButton!.Click();
+
+            Assert.Contains("editvacation", navMan.Uri.Replace(navMan.BaseUri, ""));
+        }
     }
 }
