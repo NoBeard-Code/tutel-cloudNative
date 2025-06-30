@@ -64,7 +64,22 @@ namespace Tutel.EduWork.DataAccessLayer
                 Position = "Tester"
             };
 
-            _context.Users.AddRange(user1, user2);
+            var user3 = new Entities.ApplicationUser
+            {
+                UserName = "dunjalasta@mail.com",
+                NormalizedUserName = "DUNJALASTA@MAIL.COM",
+                Email = "dunjalasta@mail.com",
+                NormalizedEmail = "DUNJALASTA@MAIL.COM",
+                EmailConfirmed = true,
+                PasswordHash = "AQAAAAIAAYagAAAAEGhU4Y7mJFg2TDwEQNCztHfRXHrn0mp8smqxchx2JXDr57GATBcvy0p5SBZ9YW4trw==",
+                SecurityStamp = "533QXQEQQBACFFQVTAEMH3QUJWKPYKGZ",
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                Name = "Dunja",
+                Surname = "Lasta",
+                Position = "Developer"
+            };
+
+            _context.Users.AddRange(user1, user2, user3);
 
             var typeBreak = new Entities.WorkSessionType { Name = "Pauza", Description = "Pauza" };
 
