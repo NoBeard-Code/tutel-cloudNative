@@ -7,7 +7,7 @@
         </div>
     </div>
     <div class="row mt-4">
-        <div class="container border border-dark rounded w-50" hidden="@workDayAlreadyExists">
+        <div class="container border border-dark rounded w-50">
             <div class="col-12 text-center fs-4">Početak radnog vremena: @workDay.WorkDayStart</div>
             <div class="col-12 text-center fs-4">Očekivani kraj radnog vremena: @workDay.WorkDayStart.AddHours(8)</div>
         </div>
@@ -122,6 +122,7 @@
             {
                 message = "Radni dan već postoji. ";
                 workDayId = workDayToCheck.Id;
+                workDay = workDayToCheck;
                 workDayAlreadyExists = true;
             }
         }
@@ -169,6 +170,7 @@
         {
             workDay.WorkDate = DateOnly.FromDateTime(date);
             await OnWorkdayChanged.InvokeAsync(workDay.WorkDate);
+            workDay.WorkDayStart = TimeOnly.FromDateTime(DateTime.Now);
             await CheckIfWorkDayExists();
         }
     }
