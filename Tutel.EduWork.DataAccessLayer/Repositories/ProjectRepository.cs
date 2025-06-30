@@ -53,5 +53,35 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
         {
             return await Entities.FirstOrDefaultAsync(p => p.Name == name);
         }
+
+        public async Task AddUserOnProject(string userId, int projectId)
+        {
+            var exists = await Context.Set<UserProject>()
+                              .AnyAsync(up => up.UserId == userId && up.ProjectId == projectId);
+
+            if (!exists)
+            {
+                var userProject = new UserProject
+                {
+                    UserId = userId,
+                    ProjectId = projectId
+                };
+
+                Context.Set<UserProject>().Add(userProject);
+                await Context.SaveChangesAsync();
+            }
+        }
+
+        public async Task RemoveUserFromProject(string userId, int projectId)
+        {
+            var userProject = await Context.Set<UserProject>()
+                               .FirstOrDefaultAsync(up => up.UserId == userId && up.ProjectId == projectId);
+
+            if (userProject != null)
+            {
+                Context.Set<UserProject>().Remove(userProject);
+                await Context.SaveChangesAsync();
+            }
+        }
     }
 }

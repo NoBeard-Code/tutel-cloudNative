@@ -185,5 +185,18 @@ namespace Tutel.EduWork.BusinessLayer.Services
                 throw;
             }
         }
+
+        public async Task<List<WorkDayDTO>> GetAllWorkDaysOnDate(DateOnly date)
+        {
+            try
+            {
+                var days = await _workDayRepo.GetWorkDaysInRangeAsync(date, date);
+                return _mapper.Map<List<WorkDayDTO>>(days);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }
