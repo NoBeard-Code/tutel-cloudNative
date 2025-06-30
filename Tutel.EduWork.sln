@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutel.EduWork.DataAccessLay
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutel.EduWork.BusinessLayer", "Tutel.EduWork.BusinessLayer\Tutel.EduWork.BusinessLayer.csproj", "{FB674FF7-30DC-4F08-B3C4-125FD56A0B58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutel.EduWork.BusinessLayer.Test", "Tutel.EduWork.BusinessLayer.Test\Tutel.EduWork.BusinessLayer.Test.csproj", "{F7EE3DF2-10A6-455D-884F-DA58397F0363}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutel.EduWork.Tests", "Tutel.EduWork.Tests\Tutel.EduWork.Tests.csproj", "{1A788F1F-FD95-4342-9FF2-783D2400F5E1}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{81DDED9D-158B-E303-5F62-77A2896D2A5A}"
 EndProject
@@ -37,6 +37,10 @@ Global
 		{FB674FF7-30DC-4F08-B3C4-125FD56A0B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB674FF7-30DC-4F08-B3C4-125FD56A0B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB674FF7-30DC-4F08-B3C4-125FD56A0B58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A788F1F-FD95-4342-9FF2-783D2400F5E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A788F1F-FD95-4342-9FF2-783D2400F5E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A788F1F-FD95-4342-9FF2-783D2400F5E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A788F1F-FD95-4342-9FF2-783D2400F5E1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F7EE3DF2-10A6-455D-884F-DA58397F0363}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F7EE3DF2-10A6-455D-884F-DA58397F0363}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7EE3DF2-10A6-455D-884F-DA58397F0363}.Release|Any CPU.ActiveCfg = Release|Any CPU
