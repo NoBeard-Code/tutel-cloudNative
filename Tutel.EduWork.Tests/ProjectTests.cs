@@ -89,7 +89,7 @@ namespace Tutel.EduWork.Tests
 
             Services.AddSingleton(mockProjectService.Object);
 
-            var navigationManager = Services.GetRequiredService<FakeNavigationManager>();
+            var navMan = Services.GetRequiredService<FakeNavigationManager>();
 
             var cut = RenderComponent<ProjectList>(); 
             cut.WaitForState(() => cut.FindAll("tbody tr").Count == 1);
@@ -98,7 +98,39 @@ namespace Tutel.EduWork.Tests
 
             editButton.Click();
 
-            Assert.Equal($"editproject/{mockProjects[0].Id}", navigationManager.Uri.Replace(navigationManager.BaseUri, ""));
+            Assert.Equal($"editproject/{mockProjects[0].Id}", navMan.Uri.Replace(navMan.BaseUri, ""));
+        }
+
+        /// <summary>
+        /// Add project and redirect to project page.
+        /// </summary>
+        [Fact]
+        public void AddProject_AddProjectAndRedirectToProject()
+        {
+            var mockProjectService = new Mock<IProjectService>();
+            mockProjectService.Setup(s => s.AddAsync(It.IsAny<ProjectDTO>())).Returns(Task.CompletedTask);
+
+            Services.AddSingleton(mockProjectService.Object);
+
+            var navMan= Services.GetRequiredService<FakeNavigationManager>();
+
+            var cut = RenderComponent<AddProject>();
+
+            cut.Find("#name").Change("Projekt B");
+            cut.Find("#description").Change("Opis projekta B");
+            cut.Find("#isBillable").Change(true);
+            cut.Find("#isActive").Change(true);
+
+            cut.Find("form").Submit();
+
+            mockProjectService.Verify(s => s.AddAsync(It.Is<ProjectDTO>(
+                p => p.Name == "Projekt B" &&
+                     p.Description == "Opis projekta B" &&
+                     p.IsBillable == true &&
+                     p.IsActive == true
+            )), Times.Once);
+                
+            Assert.Equal("project", navMan.Uri.Replace(navMan.BaseUri, ""));
         }
     }
 }
