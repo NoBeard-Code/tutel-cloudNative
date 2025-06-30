@@ -13,8 +13,12 @@
 }
 else
 {
-    <AdminDashboard NumberOfUsers="numberOfUsers" NumberOfActiveProjects="numberOfActiveProjects" LateLogIns="lateLogIns" />
-    <AdminManageUsers Users="users" />
+    <AdminDashboard NumberOfUsers="numberOfUsers"
+                    NumberOfActiveProjects="numberOfActiveProjects"
+                    LateLogIns="lateLogIns"
+                    OnHighlightLateUsers="HandleHighlightLateUsers" />
+
+    <AdminManageUsers Users="users" HighlightedUsers="highlightedUsers" />
 }
 
 @code {
@@ -23,6 +27,8 @@ else
     private int numberOfActiveProjects;
     private List<string> lateLogIns;
     private bool isLoaded;
+
+    private List<string> highlightedUsers = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -35,5 +41,11 @@ else
         lateLogIns = await workDayService.GetUsersWithLateLogsIn();
 
         isLoaded = true;
+    }
+
+    private void HandleHighlightLateUsers()
+    {
+        highlightedUsers = new List<string>(lateLogIns); 
+        StateHasChanged();
     }
 }

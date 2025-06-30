@@ -1,5 +1,4 @@
 ﻿using Tutel.EduWork.BusinessLayer.DTOs;
-using Tutel.EduWork.DataAccessLayer.Entities;
 
 namespace Tutel.EduWork.BusinessLayer.Abstractions
 {
@@ -11,5 +10,6 @@ namespace Tutel.EduWork.BusinessLayer.Abstractions
         Task<List<WorkDayDTO>> GetAllUserWorkDaysStartAsync(string userId, TimeOnly startTime);
         Task<List<string>> GetUsersWithLateLogsIn();
         Task<List<WorkDayDTO>> GetAllUserWorkDaysBetweenDates(string userId, DateOnly startDate, DateOnly endDate);
+        Task<List<WorkDayDTO>> GetAllWorkDaysOnDate(DateOnly date);
     }
 }
