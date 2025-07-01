@@ -1,11 +1,6 @@
 ﻿@page "/editworksession/{SessionId:int}"
 @attribute [Authorize]
 
-@using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Authorization
-@using Tutel.EduWork.BusinessLayer.Abstractions
-@using Tutel.EduWork.BusinessLayer.DTOs
-
 @inject IWorkSessionService workSessionService
 @inject IProjectService projectService
 @inject NavigationManager NavigationManager
