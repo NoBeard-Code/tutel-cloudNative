@@ -1,6 +1,8 @@
 ﻿@page "/admin"
 @using Tutel.EduWork.Client.Components.Admin
 
+@attribute [Authorize]
+
 @inject IUserService userService;
 @inject IProjectService projectService;
 @inject IWorkDayService workDayService;
