@@ -176,11 +176,19 @@ else
                     <button type="button" class="btn-close" aria-label="Close" @onclick="CloseProjectAssignModal"></button>
                 </div>
                 <div class="modal-body">
-                    <select class="form-select" @bind="selectedProjectId">
+                    <select class="form-select mb-3" @bind="selectedProjectId">
                         <option value="0">-- Odaberi projekt --</option>
                         @foreach (var project in availableProjects.Where(project => !userProjects.Any(up => up.Id == project.Id)))
                         {
                             <option value="@project.Id">@project.Name</option>
+                        }
+                    </select>
+
+                    <select class="form-select" @bind="selectedPosition">
+                        <option value="">-- Odaberi poziciju --</option>
+                        @foreach (var pos in positions)
+                        {
+                            <option value="@pos">@pos</option>
                         }
                     </select>
                 </div>
@@ -196,6 +204,39 @@ else
 @code {
     [Parameter]
     public string UserId { get; set; }
+
+    private List<string> positions = new List<string>
+    {
+        "Developer",
+        "QA",
+        "Manager",
+        "Designer",
+        "Team Lead",
+        "Product Owner",
+        "Scrum Master",
+        "Business Analyst",
+        "DevOps Engineer",
+        "System Administrator",
+        "UX/UI Designer",
+        "Technical Writer",
+        "Support Engineer",
+        "Security Specialist",
+        "Database Administrator",
+        "Architect",
+        "Intern",
+        "Full Stack Developer",
+        "Frontend Developer",
+        "Backend Developer",
+        "Mobile Developer",
+        "Data Scientist",
+        "Machine Learning Engineer",
+        "Quality Assurance Lead",
+        "Release Manager",
+        "Cloud Engineer"
+    };
+
+    private string selectedPosition;
+
 
     private UserDTO user;
     private List<string> roles = new();
@@ -315,6 +356,7 @@ else
     {
         availableProjects = await projectService.GetAllActive(true);
         selectedProjectId = 0;
+        selectedPosition = null;
         showProjectAssignModal = true;
         StateHasChanged();
     }
@@ -328,7 +370,7 @@ else
     {
         if (selectedProjectId != 0)
         {
-            await projectService.AddUserOnProject(user.Id, selectedProjectId);
+            await projectService.AddUserOnProject(user.Id, selectedProjectId, selectedPosition);
             userProjects = await projectService.GetAllProjectsByUser(UserId);
 
             foreach (var project in userProjects)
@@ -341,6 +383,8 @@ else
             }
 
             showProjectAssignModal = false;
+            selectedPosition = null;
+            selectedProjectId = 0;
             StateHasChanged();
         }
     }

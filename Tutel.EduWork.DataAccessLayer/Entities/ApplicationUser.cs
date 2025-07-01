@@ -6,7 +6,6 @@ namespace Tutel.EduWork.DataAccessLayer.Entities
     {
         public string Name { get; set; }
         public string Surname { get; set; }
-        public string Position { get; set; }
         public List<SickLeave> SickLeaves { get; } = new();
         public List<Vacation> Vacations { get; } = new();
         public List<WorkDay> WorkDays { get; } = new();
