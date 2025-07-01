@@ -101,7 +101,8 @@
         if (firstRender)
         {
             objRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("SetUpDaySelector", objRef);
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/workDayAdd.js");
+            await module.InvokeVoidAsync("SetUpDaySelector", objRef);
             await CheckIfWorkDayExists();
         }
     }
@@ -137,6 +138,7 @@
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 var workDayService = scope.ServiceProvider.GetService<IWorkDayService>();
+                workDay.Id = 0;
                 await workDayService.AddAsync(workDay);
                 workDayId = (await workDayService.GetByUserIdWorkDateAsync(UserId, workDay.WorkDate)).Id;
                 messageClass = "alert-success";

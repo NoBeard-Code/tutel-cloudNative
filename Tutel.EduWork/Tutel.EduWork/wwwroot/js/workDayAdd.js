@@ -1,4 +1,5 @@
-﻿window.SetUpDaySelector = (objRef) => {
+﻿export function SetUpDaySelector(objRef)
+{
     let dotNetObjRef = objRef;
 
     const platform = document.getElementById("platform");
