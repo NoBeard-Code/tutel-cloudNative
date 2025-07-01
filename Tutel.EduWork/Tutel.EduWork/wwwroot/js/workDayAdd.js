@@ -105,7 +105,7 @@
         }
         items.forEach((item, index) => {
             //item.style.transform = `translateX(${xTranslate}px)`;
-            item.style.setProperty("--extra-transform", `translateX(${xTranslate}px)`);
+            item.style.setProperty("--extra-transform", `translateX(${xTranslate - 12}px)`);
         });
         previousTranslateX = xTranslate;
     }

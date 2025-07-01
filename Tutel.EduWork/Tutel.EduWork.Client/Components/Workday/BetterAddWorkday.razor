@@ -1,14 +1,17 @@
 ﻿@using Tutel.EduWork.BusinessLayer.Exceptions
 
 <div class="container rounded bg-light p-2">
-    <div class="row">
-        <div id="day-carousel" class="carousel">
+    <div class="row justify-content-center">
+        <div class="col-lg-4 mb-2 mb-lg-0 input-small">
+            <input class="form-control" type="date" value=@workDay.WorkDate.ToString("yyyy-MM-dd") @onchange=WorkDateChanged/>
+        </div>
+        <div id="day-carousel" class="carousel carousel-hide">
             <div class="carousel-platform" id="platform"></div>
         </div>
     </div>
     <div class="row mt-4">
-        <div class="container border border-dark rounded w-50">
-            <div class="col-12 text-center fs-4">Početak radnog vremena: @workDay.WorkDayStart</div>
+        <div class="container workDay-info w-50 p-1">
+            <div class="col-12 text-center fs-4 mb-1">Početak radnog vremena: @workDay.WorkDayStart</div>
             <div class="col-12 text-center fs-4">Očekivani kraj radnog vremena: @workDay.WorkDayStart.AddHours(8)</div>
         </div>
     </div>
@@ -28,8 +31,8 @@
     .daySelection-item {
         width: 25%;
         text-align: center;
-        font-size: 22px;
-        line-height: 16px;
+        font-size: 1.2rem;
+        line-height: 1.2rem;
         white-space: nowrap;
         transition: font-size 0.3s, transform 0.3s;
         cursor: pointer;
@@ -43,8 +46,8 @@
     }
 
     .daySelection-item.active {
-        font-size: 30px;
-        line-height: 22px;
+        font-size: 1.5rem;
+        line-height: 1.5rem;
         font-weight: bold;
         transform: var(--extra-transform) scale(1.2) translateY(-5px);
         --extra-transform: '';
@@ -57,11 +60,36 @@
         overflow: hidden;
         margin: auto;
         position: relative;
+        mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     }
 
     .carousel-platform {
         display: flex;
         will-change: transform;
+    }
+
+    .input-small
+    {
+        display: none;
+    }
+
+    .workDay-info
+    {
+        border: 2px solid #f5f5f5;
+        border-radius: 10px;
+        background-color: #f5f5f5;
+    }
+
+    @@media (max-width: 1100px)
+    {
+        .carousel-hide
+        {
+            display :none;
+        }
+        .input-small
+        {
+            display: block;
+        }
     }
 
 </style>
@@ -172,6 +200,17 @@
         if (DateTime.TryParse(isoDate, out var date))
         {
             workDay.WorkDate = DateOnly.FromDateTime(date);
+            await OnWorkdayChanged.InvokeAsync(workDay.WorkDate);
+            workDay.WorkDayStart = TimeOnly.FromDateTime(DateTime.Now);
+            await CheckIfWorkDayExists();
+        }
+    }
+
+    private async Task WorkDateChanged(ChangeEventArgs args)
+    {
+        if (args.Value != null && args.Value.ToString() != null)
+        {
+            workDay.WorkDate = DateOnly.Parse(args.Value.ToString() ?? DateTime.Now.ToString());
             await OnWorkdayChanged.InvokeAsync(workDay.WorkDate);
             workDay.WorkDayStart = TimeOnly.FromDateTime(DateTime.Now);
             await CheckIfWorkDayExists();
