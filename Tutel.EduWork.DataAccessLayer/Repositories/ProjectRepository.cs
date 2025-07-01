@@ -73,6 +73,14 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
             }
         }
 
+        public async Task<string?> GetUserPositionOnProjectAsync(string userId, int projectId)
+        {
+            return await Context.Set<UserProject>()
+                                .Where(up => up.UserId == userId && up.ProjectId == projectId)
+                                .Select(up => up.Position)
+                                .FirstOrDefaultAsync();
+        }
+
         public async Task RemoveUserFromProject(string userId, int projectId)
         {
             var userProject = await Context.Set<UserProject>()

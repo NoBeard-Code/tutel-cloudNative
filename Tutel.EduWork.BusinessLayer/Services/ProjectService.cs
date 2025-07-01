@@ -57,6 +57,11 @@ namespace Tutel.EduWork.BusinessLayer.Services
             await _projectRepo.AddUserOnProject(userId, projectId, position);
         }
 
+        public async Task<string?> GetUserPositionOnProjectAsync(string userId, int projectId)
+        {
+            return await _projectRepo.GetUserPositionOnProjectAsync(userId, projectId);
+        }
+
         public async Task RemoveUserFromProject(string userId, int projectId)
         {
             await _projectRepo.RemoveUserFromProject(userId, projectId);
