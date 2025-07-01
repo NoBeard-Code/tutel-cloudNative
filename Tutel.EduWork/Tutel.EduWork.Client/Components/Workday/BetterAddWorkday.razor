@@ -90,10 +90,11 @@
 
     private DotNetObjectReference<BetterAddWorkday>? objRef;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         workDay.WorkDayStart = TimeOnly.FromDateTime(DateTime.Now);
         workDay.WorkDate = DateOnly.FromDateTime(DateTime.Now);
+        await OnWorkdayChanged.InvokeAsync(workDay.WorkDate);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

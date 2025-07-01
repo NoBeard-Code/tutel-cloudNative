@@ -23,19 +23,14 @@
         await GetWorkSessions();
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await GetWorkSessions();
-    }
-
     private async Task GetWorkSessions()
     {
+        workSessionInfos.Clear();
         using (var scope = serviceScopeFactory.CreateScope())
         {
             var workSessionService = scope.ServiceProvider.GetRequiredService<IWorkSessionService>();
             var workSessions = await workSessionService.GetAllUserSessionsByDateAsync(UserId, Date);
             var types = await workSessionService.GetAllTypesAsync();
-            workSessionInfos.Clear();
             foreach (var workSession in workSessions)
             {
                 string type = types.FirstOrDefault(t => t.Id == workSession.TypeId).Name;
