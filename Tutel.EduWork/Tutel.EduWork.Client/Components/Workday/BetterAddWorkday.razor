@@ -10,15 +10,21 @@
         </div>
     </div>
     <div class="row mt-4">
-        <div class="container workDay-info w-50 p-1">
-            <div class="col-12 text-center fs-4 mb-1">Početak radnog vremena: @workDay.WorkDayStart</div>
-            <div class="col-12 text-center fs-4">Očekivani kraj radnog vremena: @workDay.WorkDayStart.AddHours(8)</div>
+        <div class="container workDay-info workDay-size p-2">
+            <div class="row mb-3">
+                <div class="col-10 text-nowrap text-start mb-1">Početak radnog vremena:</div>
+                <div class="col-2 text-nowrap text-end mb-1">@workDay.WorkDayStart</div>
+            </div>
+            <div class="row">
+                <div class="col-10 text-start mb-1">Očekivani kraj radnog vremena:</div>
+                <div class="col-2 text-end mb-1">@workDay.WorkDayStart.AddHours(8)</div>
+            </div>
         </div>
     </div>
     <div class="row mt-4 justify-content-center">
         <div class="col-auto">
-            <button type="submit" class="add-workDay-Button" hidden="@workDayAlreadyExists" @onclick=HandleValidSubmit>Dodaj radni dan</button>
-            <button type="submit" class="goTo-workDay-Button" hidden="@(!workDayAlreadyExists)" @onclick="@(() => GoToAddWorkSessions(workDayId))">Dodaj radnu sesiju: @workDay.WorkDate</button>
+            <button type="submit" class="mb-2 add-workDay-Button" hidden="@workDayAlreadyExists" @onclick=HandleValidSubmit>Dodaj radni dan</button>
+            <button type="submit" class="mb-2 goTo-workDay-Button" hidden="@(!workDayAlreadyExists)" @onclick="@(() => GoToAddWorkSessions(workDayId))">Dodaj radnu sesiju: @workDay.WorkDate</button>
         </div>
     </div>
 
@@ -31,8 +37,8 @@
     .daySelection-item {
         width: 25%;
         text-align: center;
-        font-size: 1.2rem;
-        line-height: 1.2rem;
+        font-size: 1.4rem;
+        line-height: 1.4rem;
         white-space: nowrap;
         transition: font-size 0.3s, transform 0.3s;
         cursor: pointer;
@@ -46,13 +52,13 @@
     }
 
     .daySelection-item.active {
-        font-size: 1.5rem;
-        line-height: 1.5rem;
+        font-size: 2rem;
+        line-height: 2rem;
         font-weight: bold;
-        transform: var(--extra-transform) scale(1.2) translateY(-5px);
+        transform: var(--extra-transform) scale(1.2) translateY(-7px);
         --extra-transform: '';
         transform-origin: center;
-    }
+        }
 
     .carousel {
         width: 100%;
@@ -67,31 +73,6 @@
         display: flex;
         will-change: transform;
     }
-
-    .input-small
-    {
-        display: none;
-    }
-
-    .workDay-info
-    {
-        border: 2px solid #f5f5f5;
-        border-radius: 10px;
-        background-color: #f5f5f5;
-    }
-
-    @@media (max-width: 1100px)
-    {
-        .carousel-hide
-        {
-            display :none;
-        }
-        .input-small
-        {
-            display: block;
-        }
-    }
-
 </style>
 
 @inject IJSRuntime JS

@@ -18,3 +18,50 @@
     font-size: 1.5rem;
     font-weight: bold;
 }
+
+.input-small {
+    display: none;
+}
+
+.workDay-info {
+    border: 2px solid #f2f2f2;
+    border-radius: 10px;
+    background-color: #f2f2f2;
+}
+
+.workDay-size {
+    width: 40%;
+    letter-spacing: 2px;
+    font-size: 1.55rem;
+}
+
+@media (max-width: 1600px) {
+    .workDay-size {
+        width: 65%;
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 1100px) {
+    .carousel-hide {
+        display: none;
+    }
+
+    .input-small {
+        display: block;
+    }
+
+    .workDay-size {
+        width: 70%;
+        font-size: 1.3rem;
+        letter-spacing: 1px;
+    }
+}
+
+@media (max-width: 900px) {
+    .workDay-size {
+        width: 90%;
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+    }
+}
