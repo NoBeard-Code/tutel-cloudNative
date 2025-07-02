@@ -5,7 +5,7 @@
         <div class="col-lg-4 mb-2 mb-lg-0 input-small">
             <input class="form-control" type="date" value=@workDay.WorkDate.ToString("yyyy-MM-dd") @onchange=WorkDateChanged/>
         </div>
-        <div id="day-carousel" class="carousel carousel-hide">
+        <div id="day-carousel" class="carousel carousel-size carousel-hide">
             <div class="carousel-platform" id="platform"></div>
         </div>
     </div>
@@ -62,17 +62,29 @@
 
     .carousel {
         width: 100%;
-        max-width: 800px;
         overflow: hidden;
         margin: auto;
         position: relative;
         mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     }
 
+    .carousel-size
+    {
+        max-width: 900px;
+    }
+
     .carousel-platform {
         display: flex;
         will-change: transform;
     }
+
+    @@media(max-width: 1200px)
+    {
+        .carousel-size {
+            max-width: 800px;
+        }
+    }
+
 </style>
 
 @inject IJSRuntime JS

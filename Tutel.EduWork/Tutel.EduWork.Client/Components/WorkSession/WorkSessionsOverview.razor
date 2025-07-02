@@ -33,9 +33,6 @@
             var types = await workSessionService.GetAllTypesAsync();
             foreach (var workSession in workSessions)
             {
-                Console.BackgroundColor = ConsoleColor.Red;
-                Console.WriteLine(workSession.TypeId);
-                Console.BackgroundColor = ConsoleColor.Black;
                 string type = types.FirstOrDefault(t => t.Id == workSession.TypeId).Name;
                 string subject = "";
                 string timeRange = workSession.StartTime.ToShortTimeString() + "-" + workSession.EndTime.ToShortTimeString();
@@ -57,5 +54,4 @@
         public string TimeRange { get; } = timeRange;
         public int Id { get; } = id;
     }
-
 }
