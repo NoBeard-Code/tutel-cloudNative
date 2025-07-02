@@ -8,6 +8,7 @@ namespace Tutel.EduWork.DataAccessLayer.Entities
     public class UserProject : IUserRelated
     {
         public string UserId { get; set; }
+        public string Position { get; set; }
         public int ProjectId { get; set; }
         [ForeignKey(nameof(UserId))]
         public ApplicationUser User { get; init; }

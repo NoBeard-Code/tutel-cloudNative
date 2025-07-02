@@ -9,7 +9,8 @@ namespace Tutel.EduWork.BusinessLayer.Abstractions
         Task<List<ProjectDTO>> GetAllBillable(bool isBillable);
         Task<List<ProjectDTO>> GetAllActive(bool isActive);
         Task<List<ProjectDTO>> GetAllProjectsByUser(string userId);
-        Task AddUserOnProject(string userId, int projectId);
+        Task AddUserOnProject(string userId, int projectId, string position);
+        Task<string?> GetUserPositionOnProjectAsync(string userId, int projectId);
         Task RemoveUserFromProject(string userId, int projectId);
     }
 }

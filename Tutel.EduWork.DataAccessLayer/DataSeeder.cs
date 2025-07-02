@@ -45,8 +45,7 @@ namespace Tutel.EduWork.DataAccessLayer
                 SecurityStamp = "LBVGORWNUZWDU6HUMNJRAFNJJNHOIRNS",
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
                 Name = "Pero",
-                Surname = "Kos",
-                Position = "Developer"
+                Surname = "Kos"
             };
 
             var user2 = new Entities.ApplicationUser
@@ -60,8 +59,7 @@ namespace Tutel.EduWork.DataAccessLayer
                 SecurityStamp = "LBVGORWNUZWDU6HUMNJRAFNJJNHOIRNS",
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
                 Name = "Mato",
-                Surname = "Medved",
-                Position = "Tester"
+                Surname = "Medved"
             };
 
             var user3 = new Entities.ApplicationUser
@@ -75,8 +73,7 @@ namespace Tutel.EduWork.DataAccessLayer
                 SecurityStamp = "533QXQEQQBACFFQVTAEMH3QUJWKPYKGZ",
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
                 Name = "Dunja",
-                Surname = "Lasta",
-                Position = "Developer"
+                Surname = "Lasta"
             };
 
             _context.Users.AddRange(user1, user2, user3);
@@ -282,8 +279,8 @@ namespace Tutel.EduWork.DataAccessLayer
             });
 
             _context.UserProjects.AddRange(new[] {
-                new Entities.UserProject { UserId = user1.Id, ProjectId = project.Id },
-                new Entities.UserProject { UserId = user2.Id, ProjectId = project.Id }
+                new Entities.UserProject { UserId = user1.Id, ProjectId = project.Id, Position = "Developer" },
+                new Entities.UserProject { UserId = user2.Id, ProjectId = project.Id, Position = "QA tester"}
             });
 
             _context.SaveChanges();

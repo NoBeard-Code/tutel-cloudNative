@@ -2,11 +2,12 @@
 @using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
 @using System.Globalization
-@using Tutel.EduWork.BusinessLayer.Abstractions
-@using Tutel.EduWork.BusinessLayer.DTOs
 @using Tutel.EduWork.BusinessLayer.Exceptions
 @using Tutel.EduWork.Client.Components.Workday;
 @using Tutel.EduWork.DataAccessLayer.Entities
+
+@attribute [Authorize]
+
 <PageTitle>Home</PageTitle>
 
 <AuthorizeView>

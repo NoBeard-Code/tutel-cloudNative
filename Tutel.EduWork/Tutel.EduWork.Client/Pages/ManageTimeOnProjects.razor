@@ -1,6 +1,8 @@
 ﻿@page "/timeonprojects"
 @using MudBlazor
 
+@attribute [Authorize]
+
 @inject IUserService userService
 @inject IProjectService projectService
 @inject IWorkSessionService workSessionService

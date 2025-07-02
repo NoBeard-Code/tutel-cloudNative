@@ -95,6 +95,11 @@ else
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title fw-semibold mb-2">@project.Name</h5>
                                 <p class="text-muted mb-3">@project.Description</p>
+                              
+                                <p>
+                                    <strong>Pozicija:</strong>
+                                    @projectPositionByProjectId.GetValueOrDefault(project.Id, "-")
+                                </p>
 
                                 <p class="mb-2">
                                     <strong>Ukupno vrijeme:</strong><br />
@@ -185,11 +190,19 @@ else
                     <button type="button" class="btn-close" aria-label="Close" @onclick="CloseProjectAssignModal"></button>
                 </div>
                 <div class="modal-body">
-                    <select class="form-select" @bind="selectedProjectId">
+                    <select class="form-select mb-3" @bind="selectedProjectId">
                         <option value="0">-- Odaberi projekt --</option>
                         @foreach (var project in availableProjects.Where(project => !userProjects.Any(up => up.Id == project.Id)))
                         {
                             <option value="@project.Id">@project.Name</option>
+                        }
+                    </select>
+
+                    <select class="form-select" @bind="selectedPosition">
+                        <option value="">-- Odaberi poziciju --</option>
+                        @foreach (var pos in positions)
+                        {
+                            <option value="@pos">@pos</option>
                         }
                     </select>
                 </div>
@@ -206,6 +219,39 @@ else
     [Parameter]
     public string UserId { get; set; }
 
+    private List<string> positions = new List<string>
+    {
+        "Developer",
+        "QA",
+        "Manager",
+        "Designer",
+        "Team Lead",
+        "Product Owner",
+        "Scrum Master",
+        "Business Analyst",
+        "DevOps Engineer",
+        "System Administrator",
+        "UX/UI Designer",
+        "Technical Writer",
+        "Support Engineer",
+        "Security Specialist",
+        "Database Administrator",
+        "Architect",
+        "Intern",
+        "Full Stack Developer",
+        "Frontend Developer",
+        "Backend Developer",
+        "Mobile Developer",
+        "Data Scientist",
+        "Machine Learning Engineer",
+        "Quality Assurance Lead",
+        "Release Manager",
+        "Cloud Engineer"
+    };
+
+    private string selectedPosition;
+
+
     private UserDTO user;
     private List<string> roles = new();
     private List<IdentityRole> allRoles = new();
@@ -218,6 +264,7 @@ else
     private bool newLockoutState;
 
     private Dictionary<int, TimeSpan> projectTimeByProjectId = new();
+    private readonly Dictionary<int, string?> projectPositionByProjectId = new();
 
     private bool showProjectAssignModal = false;
     private List<ProjectDTO> availableProjects = new();
@@ -228,13 +275,7 @@ else
         user = await userService.GetUserAsync(UserId);
         roles = (await userService.GetUserRolesAsync(UserId)).ToList();
         allRoles = (await roleService.GetAllRolesAsync()).ToList();
-        userProjects = await projectService.GetAllProjectsByUser(UserId);
-
-        foreach (var project in userProjects)
-        {
-            var time = await GetTotalProjectTime(project.Id);
-            projectTimeByProjectId[project.Id] = time;
-        }
+        await ReloadProjectsAsync();
     }
 
     private async Task AddRole()
@@ -316,7 +357,7 @@ else
     private async Task RemoveUserFromProject(int projectId)
     {
         await projectService.RemoveUserFromProject(user.Id, projectId);
-        userProjects = await projectService.GetAllProjectsByUser(UserId);
+        await ReloadProjectsAsync();
         StateHasChanged();
     }
 
@@ -324,6 +365,7 @@ else
     {
         availableProjects = await projectService.GetAllActive(true);
         selectedProjectId = 0;
+        selectedPosition = null;
         showProjectAssignModal = true;
         StateHasChanged();
     }
@@ -337,20 +379,29 @@ else
     {
         if (selectedProjectId != 0)
         {
-            await projectService.AddUserOnProject(user.Id, selectedProjectId);
-            userProjects = await projectService.GetAllProjectsByUser(UserId);
+            await projectService.AddUserOnProject(user.Id, selectedProjectId, selectedPosition);
 
-            foreach (var project in userProjects)
-            {
-                if (!projectTimeByProjectId.ContainsKey(project.Id))
-                {
-                    var time = await GetTotalProjectTime(project.Id);
-                    projectTimeByProjectId[project.Id] = time;
-                }
-            }
+            await ReloadProjectsAsync();
 
             showProjectAssignModal = false;
+            selectedPosition = null;
+            selectedProjectId = 0;
             StateHasChanged();
+        }
+    }
+
+    private async Task ReloadProjectsAsync()
+    {
+        userProjects = await projectService.GetAllProjectsByUser(UserId);
+
+        projectTimeByProjectId.Clear();
+        projectPositionByProjectId.Clear();
+
+        foreach (var prj in userProjects)
+        {
+            projectTimeByProjectId[prj.Id] = await GetTotalProjectTime(prj.Id);
+            projectPositionByProjectId[prj.Id] =
+                await projectService.GetUserPositionOnProjectAsync(UserId, prj.Id);
         }
     }
 

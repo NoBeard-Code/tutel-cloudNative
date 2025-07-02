@@ -70,7 +70,6 @@
         var user = CreateUser();
         user.Name = Input.Name;
         user.Surname = Input.Surname;
-        user.Position = "";
         user.EmailConfirmed = true;
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);

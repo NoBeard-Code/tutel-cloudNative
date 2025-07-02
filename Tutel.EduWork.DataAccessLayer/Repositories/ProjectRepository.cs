@@ -54,7 +54,7 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
             return await Entities.FirstOrDefaultAsync(p => p.Name == name);
         }
 
-        public async Task AddUserOnProject(string userId, int projectId)
+        public async Task AddUserOnProject(string userId, int projectId, string position)
         {
             var exists = await Context.Set<UserProject>()
                               .AnyAsync(up => up.UserId == userId && up.ProjectId == projectId);
@@ -64,12 +64,21 @@ namespace Tutel.EduWork.DataAccessLayer.Repositories
                 var userProject = new UserProject
                 {
                     UserId = userId,
-                    ProjectId = projectId
+                    ProjectId = projectId,
+                    Position = position
                 };
 
                 Context.Set<UserProject>().Add(userProject);
                 await Context.SaveChangesAsync();
             }
+        }
+
+        public async Task<string?> GetUserPositionOnProjectAsync(string userId, int projectId)
+        {
+            return await Context.Set<UserProject>()
+                                .Where(up => up.UserId == userId && up.ProjectId == projectId)
+                                .Select(up => up.Position)
+                                .FirstOrDefaultAsync();
         }
 
         public async Task RemoveUserFromProject(string userId, int projectId)

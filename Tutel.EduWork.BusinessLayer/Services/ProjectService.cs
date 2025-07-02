@@ -52,9 +52,14 @@ namespace Tutel.EduWork.BusinessLayer.Services
             return _mapper.Map<List<Project>, List<ProjectDTO>>(entities);
         }
 
-        public async Task AddUserOnProject(string userId, int projectId)
+        public async Task AddUserOnProject(string userId, int projectId, string position)
         {
-            await _projectRepo.AddUserOnProject(userId, projectId);
+            await _projectRepo.AddUserOnProject(userId, projectId, position);
+        }
+
+        public async Task<string?> GetUserPositionOnProjectAsync(string userId, int projectId)
+        {
+            return await _projectRepo.GetUserPositionOnProjectAsync(userId, projectId);
         }
 
         public async Task RemoveUserFromProject(string userId, int projectId)
