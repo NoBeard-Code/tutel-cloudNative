@@ -87,6 +87,11 @@ namespace Tutel.EduWork
                 StaticWebAssetsLoader.UseStaticWebAssets(app.Environment, app.Configuration);
             }
 
+            if (builder.Environment.IsProduction())
+            {
+                connectionString = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING");
+            }
+
             app.UseAntiforgery();
 
             app.MapStaticAssets();
