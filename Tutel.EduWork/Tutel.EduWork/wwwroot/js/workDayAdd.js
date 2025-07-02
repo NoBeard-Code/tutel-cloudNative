@@ -1,4 +1,5 @@
-﻿window.SetUpDaySelector = (objRef) => {
+﻿export function SetUpDaySelector(objRef)
+{
     let dotNetObjRef = objRef;
 
     const platform = document.getElementById("platform");
@@ -104,7 +105,7 @@
         }
         items.forEach((item, index) => {
             //item.style.transform = `translateX(${xTranslate}px)`;
-            item.style.setProperty("--extra-transform", `translateX(${xTranslate}px)`);
+            item.style.setProperty("--extra-transform", `translateX(${xTranslate - 12}px)`);
         });
         previousTranslateX = xTranslate;
     }

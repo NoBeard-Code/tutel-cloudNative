@@ -1,21 +1,30 @@
 ﻿@using Tutel.EduWork.BusinessLayer.Exceptions
 
 <div class="container rounded bg-light p-2">
-    <div class="row">
-        <div id="day-carousel" class="carousel">
-                <div class="carousel-platform" id="platform"></div>
+    <div class="row justify-content-center">
+        <div class="col-lg-4 mb-2 mb-lg-0 input-small">
+            <input class="form-control" type="date" value=@workDay.WorkDate.ToString("yyyy-MM-dd") @onchange=WorkDateChanged/>
+        </div>
+        <div id="day-carousel" class="carousel carousel-size carousel-hide">
+            <div class="carousel-platform" id="platform"></div>
         </div>
     </div>
     <div class="row mt-4">
-        <div class="container border border-dark rounded w-50" hidden="@workDayAlreadyExists">
-            <div class="col-12 text-center fs-4">Početak radnog vremena: @workDay.WorkDayStart</div>
-            <div class="col-12 text-center fs-4">Očekivani kraj radnog vremena: @workDay.WorkDayStart.AddHours(8)</div>
+        <div class="container workDay-info workDay-size p-2">
+            <div class="row mb-3">
+                <div class="col-10 text-nowrap text-start mb-1">Početak radnog vremena:</div>
+                <div class="col-2 text-nowrap text-end mb-1">@workDay.WorkDayStart</div>
+            </div>
+            <div class="row">
+                <div class="col-10 text-start mb-1">Očekivani kraj radnog vremena:</div>
+                <div class="col-2 text-end mb-1">@workDay.WorkDayStart.AddHours(8)</div>
+            </div>
         </div>
     </div>
     <div class="row mt-4 justify-content-center">
         <div class="col-auto">
-            <button type="submit" class="add-workDay-Button" hidden="@workDayAlreadyExists" @onclick=HandleValidSubmit>Dodaj radni dan</button>
-            <button type="submit" class="goTo-workDay-Button" hidden="@(!workDayAlreadyExists)" @onclick="@(() => GoToWorkSessions(workDayId))">Otvori radni dan: @workDay.WorkDate</button>
+            <button type="submit" class="mb-2 add-workDay-Button" hidden="@workDayAlreadyExists" @onclick=HandleValidSubmit>Dodaj radni dan</button>
+            <button type="submit" class="mb-2 goTo-workDay-Button" hidden="@(!workDayAlreadyExists)" @onclick="@(() => GoToAddWorkSessions(workDayId))">Dodaj radnu sesiju: @workDay.WorkDate</button>
         </div>
     </div>
 
@@ -28,8 +37,8 @@
     .daySelection-item {
         width: 25%;
         text-align: center;
-        font-size: 22px;
-        line-height: 16px;
+        font-size: 1.4rem;
+        line-height: 1.4rem;
         white-space: nowrap;
         transition: font-size 0.3s, transform 0.3s;
         cursor: pointer;
@@ -43,24 +52,37 @@
     }
 
     .daySelection-item.active {
-        font-size: 30px;
-        line-height: 22px;
+        font-size: 2rem;
+        line-height: 2rem;
         font-weight: bold;
-            transform: var(--extra-transform) scale(1.2) translateY(-5px);
+        transform: var(--extra-transform) scale(1.2) translateY(-7px);
         --extra-transform: '';
         transform-origin: center;
-    }
+        }
+
     .carousel {
         width: 100%;
-        max-width: 800px;
         overflow: hidden;
         margin: auto;
         position: relative;
+        mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    }
+
+    .carousel-size
+    {
+        max-width: 900px;
     }
 
     .carousel-platform {
         display: flex;
         will-change: transform;
+    }
+
+    @@media(max-width: 1200px)
+    {
+        .carousel-size {
+            max-width: 800px;
+        }
     }
 
 </style>
@@ -72,6 +94,9 @@
 
     [Parameter]
     public required string UserId { get; set; }
+
+    [Parameter]
+    public EventCallback<DateOnly> OnWorkdayChanged { get; set; }
 
     private DateOnly selectedDate;
     private DateTime WorkDayStartTime;
@@ -86,18 +111,20 @@
 
     private DotNetObjectReference<BetterAddWorkday>? objRef;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         workDay.WorkDayStart = TimeOnly.FromDateTime(DateTime.Now);
         workDay.WorkDate = DateOnly.FromDateTime(DateTime.Now);
+        await OnWorkdayChanged.InvokeAsync(workDay.WorkDate);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
             objRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("SetUpDaySelector", objRef);  
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/workDayAdd.js");
+            await module.InvokeVoidAsync("SetUpDaySelector", objRef);
             await CheckIfWorkDayExists();
         }
     }
@@ -118,6 +145,7 @@
             {
                 message = "Radni dan već postoji. ";
                 workDayId = workDayToCheck.Id;
+                workDay = workDayToCheck;
                 workDayAlreadyExists = true;
             }
         }
@@ -132,6 +160,7 @@
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 var workDayService = scope.ServiceProvider.GetService<IWorkDayService>();
+                workDay.Id = 0;
                 await workDayService.AddAsync(workDay);
                 workDayId = (await workDayService.GetByUserIdWorkDateAsync(UserId, workDay.WorkDate)).Id;
                 messageClass = "alert-success";
@@ -153,7 +182,7 @@
         }
     }
 
-    private void GoToWorkSessions(int workDayId)
+    private void GoToAddWorkSessions(int workDayId)
     {
         NavigationManager.NavigateTo($"/worksessions/{workDayId}");
     }
@@ -161,10 +190,22 @@
     [JSInvokable]
     public async Task SelectDate(string isoDate)
     {
-        if(DateTime.TryParse(isoDate, out var date))
+        if (DateTime.TryParse(isoDate, out var date))
         {
             workDay.WorkDate = DateOnly.FromDateTime(date);
-            Console.WriteLine(workDay.WorkDate);
+            await OnWorkdayChanged.InvokeAsync(workDay.WorkDate);
+            workDay.WorkDayStart = TimeOnly.FromDateTime(DateTime.Now);
+            await CheckIfWorkDayExists();
+        }
+    }
+
+    private async Task WorkDateChanged(ChangeEventArgs args)
+    {
+        if (args.Value != null && args.Value.ToString() != null)
+        {
+            workDay.WorkDate = DateOnly.Parse(args.Value.ToString() ?? DateTime.Now.ToString());
+            await OnWorkdayChanged.InvokeAsync(workDay.WorkDate);
+            workDay.WorkDayStart = TimeOnly.FromDateTime(DateTime.Now);
             await CheckIfWorkDayExists();
         }
     }

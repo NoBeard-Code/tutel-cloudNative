@@ -1,0 +1,57 @@
+﻿<div class="container mt-4">
+    <div class="row">
+        @foreach (var workSessionInfo in workSessionInfos)
+        {
+            <div class="col-sm-12 col-md-6 col-xl-4 mb-4">
+                <WorkSessionInfo WorkSessionId=@workSessionInfo.Id Name=@workSessionInfo.Type TimeRange=@workSessionInfo.TimeRange Subject=@workSessionInfo.Subject></WorkSessionInfo>
+            </div>
+        }
+    </div>
+</div>
+
+@inject IServiceScopeFactory serviceScopeFactory;
+@code {
+    [Parameter]
+    public required string UserId { get; set; }
+    [Parameter]
+    public required DateOnly Date { get; set; }
+
+    List<WorkSessionInfo> workSessionInfos = new List<WorkSessionInfo>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetWorkSessions();
+    }
+
+    private async Task GetWorkSessions()
+    {
+        workSessionInfos.Clear();
+        using (var scope = serviceScopeFactory.CreateScope())
+        {
+            var workSessionService = scope.ServiceProvider.GetRequiredService<IWorkSessionService>();
+            var workSessions = await workSessionService.GetAllUserSessionsByDateAsync(UserId, Date);
+            var types = await workSessionService.GetAllTypesAsync();
+            foreach (var workSession in workSessions)
+            {
+                string type = types.FirstOrDefault(t => t.Id == workSession.TypeId).Name;
+                string subject = "";
+                string timeRange = workSession.StartTime.ToShortTimeString() + "-" + workSession.EndTime.ToShortTimeString();
+                int id = workSession.Id;
+                if (workSession.ProjectId != null)
+                {
+                    var projectService = scope.ServiceProvider.GetRequiredService<IProjectService>();
+                    subject = (await projectService.Get(workSession.ProjectId.Value)).Name;
+                }
+                workSessionInfos.Add(new WorkSessionInfo(type, subject, timeRange, id));
+            }
+        }
+    }
+
+    private record WorkSessionInfo(string type, string subject, string timeRange, int id)
+    {
+        public string Type { get; } = type;
+        public string Subject { get; } = subject;
+        public string TimeRange { get; } = timeRange;
+        public int Id { get; } = id;
+    }
+}
