@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
@@ -77,7 +78,14 @@ namespace Tutel.EduWork
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            if (!app.Environment.IsEnvironment("Containers"))
+            {
+                app.UseHttpsRedirection();
+            }
+            else
+            {
+                StaticWebAssetsLoader.UseStaticWebAssets(app.Environment, app.Configuration);
+            }
 
             app.UseAntiforgery();
 
@@ -90,9 +98,17 @@ namespace Tutel.EduWork
             // Add additional endpoints required by the Identity /Account Razor components.
             app.MapAdditionalIdentityEndpoints();
 
-            #region SEED
-
             using var scope = app.Services.CreateScope();
+
+            #region MIGRATION
+
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            context.Database.Migrate();
+
+            #endregion
+
+            #region SEED
+           
             var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
             seeder.Seed();
 
