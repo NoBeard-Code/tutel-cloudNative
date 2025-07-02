@@ -43,3 +43,11 @@ jobs:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        
+    - name: Deploy to Azure Container Apps
+      run: |
+        az containerapp up \
+            --name ${{ vars.ACR_APP_NAME }} \
+            --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+            --image ${{ vars.ACR_SERVER }}/${{ vars.ACR_APP_NAME }}:${{ github.sha }} \
+            --environment ${{ vars.ACR_ENVIRONMENT }} 
