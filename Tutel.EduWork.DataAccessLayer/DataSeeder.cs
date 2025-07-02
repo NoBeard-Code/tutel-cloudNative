@@ -965,8 +965,38 @@ namespace Tutel.EduWork.DataAccessLayer
                 WorkDayId = workDay15.Id
             };
 
+            var session31 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(8, 0),
+                EndTime = new TimeOnly(11, 30),
+                IsOvertime = false,
+                TypeId = typeWork.Id,
+                ProjectId = project1.Id,
+                WorkDayId = workDay6.Id
+            };
+
+            var session32 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(11, 31),
+                EndTime = new TimeOnly(12, 0),
+                IsOvertime = false,
+                TypeId = typeBreak.Id,
+                WorkDayId = workDay6.Id
+            };
+
+            var session33 = new Entities.WorkSession
+            {
+                StartTime = new TimeOnly(12, 01),
+                EndTime = new TimeOnly(17, 0),
+                IsOvertime = true,
+                TypeId = typeWork.Id,
+                ProjectId = project1.Id,
+                WorkDayId = workDay6.Id
+            };
+
             _context.WorkSessions.AddRange(session1, session2, session3, session4, session5, session6, session7, session8, session9, session10, session11, session12, session13, session14, session15,
-                session16, session17, session18, session19, session20, session21, session22, session23, session24, session25, session26, session27, session28, session29, session30);
+                session16, session17, session18, session19, session20, session21, session22, session23, session24, session25, session26, session27, session28, session29, session30,
+                session31, session32, session33);
 
             _context.Vacations.Add(new Entities.Vacation
             {
