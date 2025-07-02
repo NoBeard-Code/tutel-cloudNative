@@ -42,7 +42,7 @@ namespace Tutel.EduWork.DataAccessLayer
                 Email = "perokos@mail.com",
                 NormalizedEmail = "PEROKOS@MAIL.COM",
                 EmailConfirmed = true,
-                PasswordHash = "AQAAAAIAAYagAAAAEGVVQO9tT545J7972g/FIeaXBP9CYEGcgw22zhPHiFTU43AyVKDN2XgmECS9o+8B1g==",
+                PasswordHash = "AQAAAAIAAYagAAAAEGhU4Y7mJFg2TDwEQNCztHfRXHrn0mp8smqxchx2JXDr57GATBcvy0p5SBZ9YW4trw==",
                 SecurityStamp = "LBVGORWNUZWDU6HUMNJRAFNJJNHOIRNS",
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
                 Name = "Pero",
@@ -56,7 +56,7 @@ namespace Tutel.EduWork.DataAccessLayer
                 Email = "matomedved@mail.com",
                 NormalizedEmail = "MATOMEDVED@MAIL.COM",
                 EmailConfirmed = true,
-                PasswordHash = "AQAAAAIAAYagAAAAEMO9IIBvBfdesDidx0YGJTdZupQpkolKZ1MDVhm6bXxUsJ0ELBcZMjU8DDq1y6Qo+Q==",
+                PasswordHash = "AQAAAAIAAYagAAAAEGhU4Y7mJFg2TDwEQNCztHfRXHrn0mp8smqxchx2JXDr57GATBcvy0p5SBZ9YW4trw==",
                 SecurityStamp = "LBVGORWNUZWDU6HUMNJRAFNJJNHOIRNS",
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
                 Name = "Mato",
@@ -1018,7 +1018,7 @@ namespace Tutel.EduWork.DataAccessLayer
             _context.UserProjects.AddRange(new[] {
                 new Entities.UserProject { UserId = user1.Id, ProjectId = project1.Id, Position = "Developer"},
                 new Entities.UserProject { UserId = user1.Id, ProjectId = project2.Id, Position = "QA tester"},
-                new Entities.UserProject { UserId = user2.Id, ProjectId = project1.Id, Position = "Business analyst"},
+                new Entities.UserProject { UserId = user2.Id, ProjectId = project1.Id, Position = "Business Analyst"},
                 new Entities.UserProject { UserId = user2.Id, ProjectId = project2.Id, Position = "QA tester"}
             });
 
@@ -1032,10 +1032,7 @@ namespace Tutel.EduWork.DataAccessLayer
             _context.UserRoles.AddRange(new[]
             {
                 new IdentityUserRole<string> { RoleId = role1.Id, UserId = user1.Id },
-                new IdentityUserRole<string> { RoleId = role2.Id, UserId = user1.Id },
-                new IdentityUserRole<string> { RoleId = role2.Id, UserId = user2.Id },
-                new IdentityUserRole<string> { RoleId = role1.Id, UserId = user3.Id },
-                new IdentityUserRole<string> { RoleId = role2.Id, UserId = user3.Id }
+                new IdentityUserRole<string> { RoleId = role2.Id, UserId = user1.Id }
             });
 
             _context.SaveChanges();
