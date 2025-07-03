@@ -1,11 +1,12 @@
 ﻿@page "/worksessions/{WorkDayId:int}"
+@using System.Security.Claims
 @attribute [Authorize]
 
 
 @inject IWorkSessionService workSessionService
 @inject IProjectService     projectService
 @inject NavigationManager   NavigationManager
-
+@inject AuthenticationStateProvider authenticationStateProvider;
 <h3>Dodaj radnu sesiju</h3>
 
 @if (isLoading)
@@ -80,6 +81,7 @@ else
 }
 
 @code {
+
     [Parameter] public int WorkDayId { get; set; }
 
     private readonly WorkSessionDTO session = new();
@@ -91,12 +93,15 @@ else
     private string message    = string.Empty;
     private string alertClass = string.Empty;
 
+    private string userId = string.Empty;
     protected override async Task OnInitializedAsync()
     {
         session.WorkDayId = WorkDayId;
-
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
         types    = await workSessionService.GetAllTypesAsync();
-        projects = await projectService.GetAllAsync();
+        projects = await projectService.GetAllProjectsByUser(userId);
 
         isLoading = false;
     }
